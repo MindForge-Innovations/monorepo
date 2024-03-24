@@ -1,0 +1,3 @@
+defaults:
+  - dataset: CRH.yaml
+  - model: fasterRCNN_v2.yaml
