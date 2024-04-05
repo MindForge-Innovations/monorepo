@@ -1,6 +1,6 @@
 
 # Object Detection Project
-
+```
 object_detection_project/
 │
 ├── data/                      # Dossier pour les données et scripts de préparation des données
@@ -34,7 +34,7 @@ object_detection_project/
 │   └── evaluate.py            # Script pour évaluer le modèle entraîné
 │
 └── README.md                  # Un fichier README pour expliquer le projet, l'installation, etc.
-
+```
 - **data/**: Contient toutes les données nécessaires pour le projet. Les sous-dossiers raw et processed aident à distinguer entre les données brutes et celles qui ont été prétraitées.
 - **models/**: Contient les définitions des modèles ainsi que les poids après l'entraînement.
 - **utils/**: Contient des scripts d'utilitaires qui peuvent être utilisés à divers endroits du projet.
