@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-selector-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-selector
+  template:
+    metadata:
+      labels:
+        app: api-selector
+    spec:
+      containers:
+      - name: api-selector
+        image: api_selector:latest
+        ports:
+        - containerPort: 80
+        imagePullPolicy: IfNotPresent
