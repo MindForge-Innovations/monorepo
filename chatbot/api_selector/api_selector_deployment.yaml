@@ -1,9 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api-selector-deployment
+  name: api-selector
+  labels:
+    app: api-selector
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: api-selector
@@ -18,3 +20,13 @@ spec:
         ports:
         - containerPort: 80
         imagePullPolicy: IfNotPresent
+        env:
+          - name: CHROMA_SERVER_HOST
+            value: "chromadb"  # Assuming the service name in the cluster is chromadb
+          - name: CHROMA_SERVER_HTTP_PORT
+            value: "8000"  # Replace with the actual port if different
+          - name: BEARER_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: chromadb-auth  # The name of your secret
+                key: token  # The key within the secret where the token is stored
