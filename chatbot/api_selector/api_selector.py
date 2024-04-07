@@ -11,13 +11,15 @@ from openai import OpenAI
 import os
 
 
-import os
-
+#___________________________________________________________________________________________
+# TEMPORARY: Load environment variables from .env file
 from dotenv import load_dotenv, find_dotenv
 _ = load_dotenv(find_dotenv()) # read local .env file
 
 import warnings
 warnings.filterwarnings("ignore")
+#___________________________________________________________________________________________
+
 
 class OpenAIManager:
     """
@@ -96,26 +98,6 @@ async def startup_event():
         port=port,
         headers={"Authorization": f"Bearer {bearer_token}"}
     )
-    # import joblib
-    # from pathlib import Path
-    # import pandas as pd
-    # DATA_PATH = '../data/embeddings.joblib'
-    # COLLECTION_NAME = 'api_endpoints'
-    # spec_embeddings = joblib.load(Path(DATA_PATH))
-    # chroma_client = chromadb.HttpClient(
-    #     host='0.0.0.0',
-    #     port='8000',
-    # )
-    # collection = chroma_client.get_or_create_collection(name=COLLECTION_NAME)
-    # # Extract documents, embeddings, metadatas, and ids from the data
-    # df = pd.DataFrame(spec_embeddings)
-    # documents = df.documents.tolist()
-    # embeddings = df.embeddings.tolist()
-    # metadatas = df.metadatas.tolist()
-    # ids = df.id.apply(str).to_list()
-
-    # # Add the data to the collection
-    # collection.add(documents=documents, embeddings=embeddings, metadatas=metadatas, ids=ids)
 
 
 @app.get("/status/")
@@ -129,7 +111,6 @@ async def get_status():
         A dictionary containing the status of the API.
     """
     return {"status": "API is running"}
-
 
 @app.post("/get_similar_apis/")
 async def get_similar_apis(request: SimilarAPIsRequest):
