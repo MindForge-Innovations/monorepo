@@ -1,0 +1,17 @@
+apiVersion: v2
+name: chromadb
+maintainers:
+  - name: Olivier D'Ancona
+    email: olivier.dancona@master.hes-so.ch
+description: An Helm chart with init script for Chroma DB vector store
+icon: https://github.com/chroma-core/docs/blob/0b58523496c3e6d07aac39f066f73378ed926750/static/img/chroma.png
+keywords:
+  - chromadb
+  - vectordb
+  - vectorstore
+  - ai/ml
+type: application
+
+version: 0.1.20
+# chromadb version
+appVersion: "0.4.24"

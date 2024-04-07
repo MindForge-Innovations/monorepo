@@ -1,3 +1,4 @@
+# Original Dockerfile: https://github.com/chroma-core/chroma/blob/main/Dockerfile
 FROM chromadb/chroma:latest
 
 # Install dependencies required for your script (if they're not already in the base image)

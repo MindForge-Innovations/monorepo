@@ -13,7 +13,8 @@ handle_sigterm() {
 trap 'handle_sigterm' SIGTERM SIGINT
 
 # Start the original entrypoint script in the background
-/docker_entrypoint.sh --workers ${CHROMA_WORKERS} --host ${CHROMA_HOST_ADDR} --port ${CHROMA_HOST_PORT} --proxy-headers --log-config ${CHROMA_LOG_CONFIG} --timeout-keep-alive ${CHROMA_TIMEOUT_KEEP_ALIVE} &
+#--log-config ${CHROMA_LOG_CONFIG}
+/docker_entrypoint.sh --workers ${CHROMA_WORKERS} --host ${CHROMA_HOST_ADDR} --port ${CHROMA_HOST_PORT} --proxy-headers  --timeout-keep-alive ${CHROMA_TIMEOUT_KEEP_ALIVE} &
 child_pid=$!
 
 # Wait for ChromaDB to be available

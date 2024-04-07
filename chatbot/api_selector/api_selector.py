@@ -53,6 +53,18 @@ class SimilarAPIsRequest(BaseModel):
 class DocumentRequest(BaseModel):
     id: str
 
+@app.get("/status/")
+async def get_status():
+    """
+    Check the status of the API.
+
+    Returns
+    -------
+    dict
+        A dictionary containing the status of the API.
+    """
+    return {"status": "API is running"}
+
 @app.post("/get_similar_apis/")
 async def get_similar_apis(request: SimilarAPIsRequest):
     """
