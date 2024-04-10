@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  sys_sim:
+    container_name: system_simulation
+    build:
+      context: ./system_sim
+    depends_on:
+      - redis_db
+    ports:
+      - "5000:5000"
+    networks:
+      - redis
+    env_file:
+      - .env
+
+  bot_app:
+    container_name: aiFred_bot
+    build:
+      context: ./bot_app
+    depends_on:
+      - sys_sim
+    networks:
+      - redis
+    env_file:
+      - .env
+
+  redis_db:
+    container_name: my_redis_db
+    image: redis:6.0-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - redis
+    env_file:
+      - .env
+
+networks:
+  redis:
+    driver: bridge

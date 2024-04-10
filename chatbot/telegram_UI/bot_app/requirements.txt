@@ -1,0 +1,5 @@
+asyncio
+python-dotenv
+aiogram
+redis
+requests
