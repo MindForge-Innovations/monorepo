@@ -5,7 +5,7 @@ FROM python:latest
 WORKDIR /app
 
 # Copy requirements.txt and appbis.py into the container
-COPY requirements.txt appBis.py ./
+COPY requirements.txt telegram_ui.py ./
 
 RUN pip3 install --upgrade pip
 RUN pip3 install --no-cache-dir -r requirements.txt

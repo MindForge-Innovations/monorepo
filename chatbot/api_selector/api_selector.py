@@ -3,28 +3,35 @@ This module provides a FastAPI service for selecting API endpoints based on a gi
 leveraging OpenAI's embeddings and a ChroMaDB vector store.
 """
 
-from fastapi import FastAPI, HTTPException, Depends
+# ~~~ Imports ~~~
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 import chromadb
 from openai import OpenAI
 import os
+from colorlog import ColoredFormatter
+import logging
+import redis
 
-
-#___________________________________________________________________________________________
+# ___________________________________________________________________________________________
 # TEMPORARY: Load environment variables from .env file
 from dotenv import load_dotenv, find_dotenv
-_ = load_dotenv(find_dotenv()) # read local .env file
+
+_ = load_dotenv(find_dotenv())  # read local .env file
 
 import warnings
+
 warnings.filterwarnings("ignore")
-#___________________________________________________________________________________________
+# ___________________________________________________________________________________________
 
 
 class OpenAIManager:
     """
     Manages the connection and interactions with the OpenAI API.
     """
+
     def __init__(self, user_id: str):
         """
         Initialize the OpenAI manager with the provided API key.
@@ -37,7 +44,7 @@ class OpenAIManager:
         self.api_key = self._get_api_key(user_id)
         self.client = OpenAI(api_key=self.api_key)
 
-    def _get_api_key(self, user_id:str) -> str:
+    def _get_api_key(self, user_id: str) -> str:
         """
         Retrieve the API key for authenticating with the OpenAI service.
 
@@ -51,9 +58,11 @@ class OpenAIManager:
 
         # if not api_key:
         #     raise HTTPException(status_code=404, detail="API key not found for user")
-        return os.getenv('OPENAI_API_KEY')
+        return os.getenv("OPENAI_API_KEY")
 
-    def get_embedding(self, text: str, model: str = "text-embedding-3-small") -> list:
+    def get_embedding(
+        self, text: str, model: str = "text-embedding-3-small"
+    ) -> list:
         """
         Generate an embedding for the given text using the specified model.
 
@@ -70,34 +79,90 @@ class OpenAIManager:
             The embedding vector.
         """
         text = text.replace("\n", " ")
-        return self.client.embeddings.create(input=[text], model=model).data[0].embedding
+        return (
+            self.client.embeddings.create(input=[text], model=model)
+            .data[0]
+            .embedding
+        )
+
 
 class SimilarAPIsRequest(BaseModel):
     prompt: str
     user_id: str
     k: Optional[int] = 10
 
+
 class DocumentRequest(BaseModel):
     id: str
 
-app = FastAPI()
 
-chroma_client = None
+# ~~~ Configuration du Logger ~~~
+def get_logger():
+    global logger
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
 
-@app.on_event("startup")
-async def startup_event():
+    formatter = ColoredFormatter(
+        "%(log_color)s%(levelname)-8s%(reset)s %(message)s",
+        log_colors={
+            "DEBUG": "cyan",
+            "INFO": "green",
+            "WARNING": "yellow",
+            "ERROR": "red",
+            "CRITICAL": "red,bg_white",
+        },
+        reset=True,
+        style="%",
+    )
+
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+    return logger
+
+
+# ~~~ Connection to Chroma ~~~
+def connect_to_chroma():
     global chroma_client
-    host = os.getenv('CHROMA_SERVER_HOST', 'chromadb')  # Default to 'chromadb'
-    port = os.getenv('CHROMA_SERVER_HTTP_PORT', '8000')  # Default to '8000'
-    bearer_token = os.getenv('BEARER_TOKEN')  # No default, should be provided
+    host = os.getenv("CHROMA_SERVER_HOST", "chromadb")  # Default to 'chromadb'
+    port = os.getenv("CHROMA_SERVER_HTTP_PORT", "8000")  # Default to '8000'
+    bearer_token = os.getenv("BEARER_TOKEN")  # No default, should be provided
     if not bearer_token:
         raise Exception("Bearer token for ChromaDB is not set")
 
     chroma_client = chromadb.HttpClient(
         host=host,
         port=port,
-        headers={"Authorization": f"Bearer {bearer_token}"}
+        headers={"Authorization": f"Bearer {bearer_token}"},
     )
+
+
+# ~~~ Connection to Redis ~~~
+def connect_to_redis():
+    global redis_client
+    REDIS_NET = os.getenv("REDIS_NETWORK", "redis")
+    REDIS_PORT = os.getenv("REDIS_PORT", "6379")
+    logger.info(
+        "Connecting to redis / host : ", REDIS_NET, " port : ", REDIS_PORT
+    )
+    redis.Redis(host=REDIS_NET, port=REDIS_PORT, db=0)
+
+
+# ~~~ App Lifecycle ~~~
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger = get_logger()
+    logger.info("Starting API")
+    connect_to_chroma()
+    connect_to_redis()
+    yield
+    logger.info("Shutting down API")
+
+
+# ~~~ Global Variables ~~~
+app = FastAPI(lifespan=lifespan)
+chroma_client = None
+redis_client = None
 
 
 @app.get("/status/")
@@ -108,9 +173,9 @@ async def get_status():
     Returns
     -------
     dict
-        A dictionary containing the status of the API.
     """
     return {"status": "API is running"}
+
 
 @app.post("/get_similar_apis/")
 async def get_similar_apis(request: SimilarAPIsRequest):
@@ -131,8 +196,14 @@ async def get_similar_apis(request: SimilarAPIsRequest):
     openai_manager = OpenAIManager(request.user_id)
     embedding = openai_manager.get_embedding(request.prompt)
     collection = chroma_client.get_collection(name="api_endpoints")
-    results = collection.query(query_embeddings=[embedding], n_results=request.k)
-    return {"documents": results['documents'], "distances": results['distances']}
+    results = collection.query(
+        query_embeddings=[embedding], n_results=request.k
+    )
+    return {
+        "documents": results["documents"],
+        "distances": results["distances"],
+    }
+
 
 @app.post("/get_document/")
 async def get_document(request: DocumentRequest):
