@@ -129,6 +129,7 @@ def connect_to_chroma():
     chroma_token = os.getenv(
         "CHROMA_BEARER_TOKEN"
     )  # No default, should be provided
+
     if not chroma_token:
         raise Exception("Bearer token for ChromaDB is not set")
 

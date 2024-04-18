@@ -1,4 +1,5 @@
 chromadb
+redis
 fastapi
 uvicorn[standard]
 pandas
