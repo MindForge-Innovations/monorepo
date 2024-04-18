@@ -2,4 +2,8 @@ asyncio
 python-dotenv
 aiogram
 redis
-requests
+httpx
+colorlog
+pydantic
+uvicorn
+fastapi

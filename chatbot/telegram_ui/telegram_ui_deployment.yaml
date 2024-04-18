@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telegram-ui
+  labels:
+    app: telegram-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: telegram-ui
+  template:
+    metadata:
+      labels:
+        app: telegram-ui
+    spec:
+      containers:
+      - name: telegram-ui
+        image: telegram_ui:latest
+        ports:
+        - containerPort: 80
+        imagePullPolicy: IfNotPresent
+        env:
+          # ~~~ REDIS ~~~
+          - name: REDIS_SERVER_HOST
+            value: "redisdb-master"
+          - name: REDIS_SERVER_HTTP_PORT
+            value: "6379"
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: redisdb
+                key: redis-password
+          # ~~~ TELEGRAM ~~~
+          - name: TELEGRAM_BOT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: telegram-bot-token
+                key: token
+          # ~~~ System ~~~
+          - name: SYSTEM_SERVER_HOST
+            value: "api-selector"
+          - name: SYSTEM_SERVER_HTTP_PORT
+            value: "80"

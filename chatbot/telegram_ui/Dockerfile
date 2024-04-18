@@ -18,4 +18,3 @@ EXPOSE 80
 
 # Run app.py when the container launches
 ENTRYPOINT ["python3", "telegram_ui.py"]
-#CMD ["uvicorn", "api_selector:app", "--host", "0.0.0.0", "--port", "80"]

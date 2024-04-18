@@ -21,13 +21,6 @@ from colorlog import ColoredFormatter
 import uvicorn
 from pydantic import BaseModel
 
-# ___________________________________________________________________________________________
-# TEMPORARY: Load environment variables from .env file
-from dotenv import load_dotenv, find_dotenv
-
-_ = load_dotenv(find_dotenv())  # read local .env file
-# ___________________________________________________________________________________________
-
 
 # ~~~ Logger Configuration ~~~
 def setup_logging():
@@ -69,10 +62,8 @@ def init_redis():
     REDIS_HOST = os.getenv(
         "REDIS_SERVER_HOST", "redisdb-master.default.svc.cluster.local"
     )
-    REDIS_HOST = "127.0.0.1"
     REDIS_PORT = os.getenv("REDIS_SERVER_HTTP_PORT", "6379")
     REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
-    REDIS_PASSWORD = "YnkNRT0jv5"
     logger.info(
         f"Connecting to redis / host : {REDIS_HOST} port : {REDIS_PORT}"
     )
@@ -163,8 +154,8 @@ async def start_handler(message: types.Message):
 @dp.message()
 async def echo_handler(message: types.Message):
     user_id = str(message.from_user.id)
-    HOST = "192.168.49.2"
-    PORT = 32290
+    HOST = os.getenv("SYSTEM_SERVER_HOST", "api-selector")
+    PORT = os.getenv("SYSTEM_SERVER_HTTP_PORT", "80")
     system_http_url = f"http://{HOST}:{PORT}/get_similar_apis/"
     user_data = {"user_id": user_id, "prompt": message.text, "k": 3}
     async with httpx.AsyncClient() as client:
@@ -202,7 +193,7 @@ async def start_telegram_bot():
 
 # ~~~ Start FastApi ~~~
 async def start_fastapi():
-    config = uvicorn.Config(app=app, host="0.0.0.0", port=8080, loop="asyncio")
+    config = uvicorn.Config(app=app, host="0.0.0.0", port=80, loop="asyncio")
     server = uvicorn.Server(config)
     await server.serve()
 
