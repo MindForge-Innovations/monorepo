@@ -30,9 +30,9 @@ def initialize_vector_store():
     chroma_client = chromadb.HttpClient(
         host=CHROMADB_HOST,
         port=CHROMADB_PORT,
-        headers={"Authorization": f"Bearer {BEARER_TOKEN}"}
+        headers={"Authorization": f"Bearer {CHROMA_BEARER_TOKEN}"},
     )
-    
+
     # Load the precomputed embeddings and API data
     spec_embeddings = joblib.load(Path(DATA_PATH))
 
@@ -47,14 +47,18 @@ def initialize_vector_store():
     ids = df.id.apply(str).to_list()
 
     # Add the data to the collection
-    collection.add(documents=documents, embeddings=embeddings, metadatas=metadatas, ids=ids)
+    collection.add(
+        documents=documents, embeddings=embeddings, metadatas=metadatas, ids=ids
+    )
 
-        
+
 if __name__ == "__main__":
     DATA_PATH = os.getenv("DATA_PATH", "embeddings.joblib")
     CHROMADB_HOST = os.getenv("CHROMA_SERVER_HOST", "chromadb")
-    CHROMADB_PORT = int(os.getenv("CHROMA_SERVER_HTTP_PORT", "8000"))  # Default port
+    CHROMADB_PORT = int(
+        os.getenv("CHROMA_SERVER_HTTP_PORT", "8000")
+    )  # Default port
     COLLECTION_NAME = os.getenv("COLLECTION_NAME", "api_endpoints")
-    BEARER_TOKEN = os.getenv("BEARER_TOKEN")
+    CHROMA_BEARER_TOKEN = os.getenv("CHROMA_BEARER_TOKEN")
 
     initialize_vector_store()

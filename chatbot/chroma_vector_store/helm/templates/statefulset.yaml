@@ -62,7 +62,7 @@ spec:
           image: "{{ .Values.image.repository }}"
           imagePullPolicy: "{{ .Values.image.pullPolicy }}"
           env:
-            - name: BEARER_TOKEN
+            - name: CHROMA_BEARER_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: chromadb-auth

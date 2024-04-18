@@ -126,14 +126,16 @@ def connect_to_chroma():
     global chroma_client
     host = os.getenv("CHROMA_SERVER_HOST", "chromadb")  # Default to 'chromadb'
     port = os.getenv("CHROMA_SERVER_HTTP_PORT", "8000")  # Default to '8000'
-    bearer_token = os.getenv("BEARER_TOKEN")  # No default, should be provided
-    if not bearer_token:
+    chroma_token = os.getenv(
+        "CHROMA_BEARER_TOKEN"
+    )  # No default, should be provided
+    if not chroma_token:
         raise Exception("Bearer token for ChromaDB is not set")
 
     chroma_client = chromadb.HttpClient(
         host=host,
         port=port,
-        headers={"Authorization": f"Bearer {bearer_token}"},
+        headers={"Authorization": f"Bearer {chroma_token}"},
     )
 
 
