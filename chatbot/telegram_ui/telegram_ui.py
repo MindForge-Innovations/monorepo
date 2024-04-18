@@ -58,6 +58,8 @@ def get_logger():
     return logger
 
 
+get_logger()
+
 # ~~~ Variables globales ~~~
 global dp
 global chatID
@@ -70,23 +72,30 @@ WELCOME_MESSAGE = """Welcome to AIFred. :-)
 I am an autonomous API agent, capable to give you information from the APIs that I have in stock.
 You can start a session by sending /startSession."""
 
-TELEGRAM_BOT_TOKEN = os.getenv("BOT_TELEGRAM_BOT_TOKEN")
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
 ORCHESTRATOR_HOST = os.getenv("ORCHESTRATOR_HOST")
 ORCHESTRATOR_PORT = os.getenv("ORCHESTRATOR_PORT")
 
 SERVER_URL = f"http://{ORCHESTRATOR_HOST}:{ORCHESTRATOR_PORT}"
 
+if not TELEGRAM_BOT_TOKEN:
+    logger.error("Please provide a valid Telegram Bot Token.")
+    sys.exit(1)
+
+bot = Bot(token=TELEGRAM_BOT_TOKEN, parse_mode=ParseMode.HTML)
+dp = Dispatcher()
+
 
 # ~~~ Connection to Redis ~~~
 def connect_to_redis():
     REDIS_HOST = os.getenv(
-        "REDIS_HOST", "redisdb-master.default.svc.cluster.local"
+        "REDIS_SERVER_HOST", "redisdb-master.default.svc.cluster.local"
     )
-    REDIS_PORT = os.getenv("REDIS_PORT", "6379")
+    REDIS_PORT = os.getenv("REDIS_SERVER_HTTP_PORT", "6379")
     REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
     logger.info(
-        "Connecting to redis / host : ", REDIS_HOST, " port : ", REDIS_PORT
+        f"Connecting to redis / host : {REDIS_HOST} port : {REDIS_PORT}"
     )
     r = redis.Redis(
         host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD, db=0
@@ -96,13 +105,13 @@ def connect_to_redis():
 
 # ~~~ Redis Functions ~~~
 async def write_userdata_to_redis(dict_key, dict_mapping):
-    logger.info("Writing to redis:", dict_key, dict_mapping)
+    logger.info(f"Writing to redis: {dict_key} {dict_mapping}")
     redis_client.hset(dict_key, mapping=dict_mapping)
 
 
 async def read_userdata_from_redis(dict_key):
     value = redis_client.hgetall(dict_key)
-    logger.info("reading from redis:", value)
+    logger.info(f"reading from redis: {value}")
     return value if value else None
 
 
@@ -122,11 +131,11 @@ async def get_history(message: types.Message):
     Handler for the /getHistory command to get the chat history.
     """
     user_id = message.from_user.id
-    logger.info("want history from user : ", user_id)
+    logger.info(f"want history from user : {user_id}")
 
     # Read chat history from Redis
     user_data = await read_userdata_from_redis(user_id)
-    logger.info("chat history : ", user_data)
+    logger.info(f"chat history : {user_data}")
 
     if user_data:
         existing_userData_decoded = {
@@ -139,7 +148,7 @@ async def get_history(message: types.Message):
 
 
 @dp.message(StringFilter("/startSession"))
-async def start(message: types.Message):
+async def startSession(message: types.Message):
     """
     Handler for the /startSession command to start a session.
     """
@@ -180,11 +189,11 @@ async def start(message: types.Message):
 
 #         # consider that the next message will be the API key so now user has API key
 #         user_data = await read_dict_from_redis(f"{user_id}")
-#         logger.info("user_data:", user_data)
+#         logger.info(f"user_data: {user_data}")
 #         if user_data:
 #             # Convert bytes to dictionary
 #             existing_userData_decoded = {key.decode(): value.decode() for key, value in user_data.items()}
-#             logger.info("existing_userData_decoded:", existing_userData_decoded)
+#             logger.info(f"existing_userData_decoded: {existing_userData_decoded}")
 #             # Append message_dict to "messageHistory"
 #             existing_userData_decoded['hasAPIKey'] = '1'
 #             # Serialize updated data back to bytes
@@ -206,7 +215,7 @@ async def send_data_to_server(data, user_id):
         # Construct the dictionary with user and system messages
 
         response = requests.post(f"{SERVER_URL}/messages", json=data)
-        logger.info("Response from server:", response.json())
+        logger.info(f"Response from server: {response.json()}")
         message_dict = {
             "user": data["message"],
             "system": response.json()["response"],  # Server response
@@ -214,17 +223,19 @@ async def send_data_to_server(data, user_id):
         # Append the dictionary to message history
         memory[user_id]["messageHistory"].append(message_dict)
         redis_data = str(memory[user_id]["messageHistory"])
-        logger.info("Writing to redis:", memory[user_id]["messageHistory"])
+        logger.info(f"Writing to redis: {memory[user_id]['messageHistory']}")
 
         existing_userData = await read_userdata_from_redis(userID_key)
-        logger.info("existing_userData:", existing_userData)
+        logger.info(f"existing_userData: {existing_userData}")
         if existing_userData:
             # Convert bytes to dictionary
             existing_userData_decoded = {
                 key.decode(): value.decode()
                 for key, value in existing_userData.items()
             }
-            logger.info("existing_userData_decoded:", existing_userData_decoded)
+            logger.info(
+                f"existing_userData_decoded: {existing_userData_decoded}"
+            )
             # Append message_dict to "messageHistory"
             existing_userData_decoded["messageHistory"] = redis_data
             # Serialize updated data back to bytes
@@ -237,7 +248,7 @@ async def send_data_to_server(data, user_id):
 
         return response.json()["response"]
     except Exception as e:
-        logger.info("Error send_data:", e)
+        logger.error(f"Error send_data: {e}")
 
 
 @dp.message()
@@ -259,7 +270,9 @@ async def echo_handler(message: types.Message) -> None:
         if memory[user_id]["hasAPIKey"] == "1":
             # write in redis the api key and reply only that the api key has been set
             user_data = await read_userdata_from_redis(f"{user_id}")
-            logger.info("user_data:", user_data)
+            logger.info(
+                f"user_data: {user_data}",
+            )
             if user_data:
                 # Convert bytes to dictionary
                 existing_userData_decoded = {
@@ -267,7 +280,7 @@ async def echo_handler(message: types.Message) -> None:
                     for key, value in user_data.items()
                 }
                 logger.info(
-                    "existing_userData_decoded:", existing_userData_decoded
+                    f"existing_userData_decoded: {existing_userData_decoded}"
                 )
                 # Append message_dict to "messageHistory"
                 existing_userData_decoded["api_key"] = message.text
@@ -300,7 +313,7 @@ async def echo_handler(message: types.Message) -> None:
                 data_to_send, user_id
             )  # Get the response
 
-            logger.info("Received from server:", response)
+            logger.info(f"Received from server: {response}")
             if response is None:
                 default_message = (
                     "Sorry, there was an issue processing your request."
@@ -318,9 +331,6 @@ async def echo_handler(message: types.Message) -> None:
 
 
 async def main() -> None:
-    get_logger()
-    bot = Bot(TELEGRAM_BOT_TOKEN, parse_mode=ParseMode.HTML)
-    dp = Dispatcher(bot)
     await dp.start_polling(bot)
 
 
