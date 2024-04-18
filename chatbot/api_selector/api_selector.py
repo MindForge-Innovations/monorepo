@@ -139,13 +139,18 @@ def connect_to_chroma():
 
 # ~~~ Connection to Redis ~~~
 def connect_to_redis():
-    global redis_client
-    REDIS_NET = os.getenv("REDIS_NETWORK", "redis")
-    REDIS_PORT = os.getenv("REDIS_PORT", "6379")
-    logger.info(
-        "Connecting to redis / host : ", REDIS_NET, " port : ", REDIS_PORT
+    REDIS_HOST = os.getenv(
+        "REDIS_HOST", "redisdb-master.default.svc.cluster.local"
     )
-    redis.Redis(host=REDIS_NET, port=REDIS_PORT, db=0)
+    REDIS_PORT = os.getenv("REDIS_PORT", "6379")
+    REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+    logger.info(
+        "Connecting to redis / host : ", REDIS_HOST, " port : ", REDIS_PORT
+    )
+    r = redis.Redis(
+        host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD, db=0
+    )
+    return r
 
 
 # ~~~ App Lifecycle ~~~

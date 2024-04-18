@@ -2,6 +2,7 @@ chromadb
 fastapi
 uvicorn[standard]
 pandas
+colorlog
 joblib==1.3.2
 langchain==0.1.13
 langchain-openai==0.1.1
