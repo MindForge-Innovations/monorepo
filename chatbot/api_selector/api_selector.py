@@ -139,16 +139,19 @@ def connect_to_chroma():
 
 # ~~~ Connection to Redis ~~~
 def connect_to_redis():
-    REDIS_HOST = os.getenv(
-        "REDIS_HOST", "redisdb-master.default.svc.cluster.local"
+    REDIS_SERVER_HOST = os.getenv(
+        "REDIS_SERVER_HOST", "redisdb-master.default.svc.cluster.local"
     )
-    REDIS_PORT = os.getenv("REDIS_PORT", "6379")
+    REDIS_SERVER_HTTP_PORT = os.getenv("REDIS_SERVER_HTTP_PORT", "6379")
     REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
     logger.info(
-        "Connecting to redis / host : ", REDIS_HOST, " port : ", REDIS_PORT
+        f"Connecting to Redis at host: {REDIS_SERVER_HOST} on port: {REDIS_SERVER_HTTP_PORT}"
     )
     r = redis.Redis(
-        host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD, db=0
+        host=REDIS_SERVER_HOST,
+        port=REDIS_SERVER_HTTP_PORT,
+        password=REDIS_PASSWORD,
+        db=0,
     )
     return r
 
@@ -157,11 +160,13 @@ def connect_to_redis():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger = get_logger()
-    logger.info("Starting API")
-    connect_to_chroma()
-    connect_to_redis()
-    yield
-    logger.info("Shutting down API")
+    try:
+        logger.info("Starting API")
+        connect_to_chroma()
+        connect_to_redis()
+        yield
+    finally:
+        logger.info("Shutting down API")
 
 
 # ~~~ Global Variables ~~~
@@ -201,8 +206,10 @@ async def get_similar_apis(request: SimilarAPIsRequest):
     openai_manager = OpenAIManager(request.user_id)
     embedding = openai_manager.get_embedding(request.prompt)
     collection = chroma_client.get_collection(name="api_endpoints")
+
+    n_results = request.k if request.k else 10
     results = collection.query(
-        query_embeddings=[embedding], n_results=request.k
+        query_embeddings=[embedding], n_results=n_results
     )
     return {
         "documents": results["documents"],

@@ -21,12 +21,23 @@ spec:
         - containerPort: 80
         imagePullPolicy: IfNotPresent
         env:
+          # ~~~ CHROMA ~~~
           - name: CHROMA_SERVER_HOST
             value: "chromadb"  # Assuming the service name in the cluster is chromadb
           - name: CHROMA_SERVER_HTTP_PORT
-            value: "8000"  # Replace with the actual port if different
+            value: "8000"
           - name: BEARER_TOKEN
             valueFrom:
               secretKeyRef:
                 name: chromadb-auth  # The name of your secret
                 key: token  # The key within the secret where the token is stored
+          # ~~~ REDIS ~~~
+          - name: REDIS_SERVER_HOST
+            value: "redisdb-master"
+          - name: REDIS_SERVER_HTTP_PORT
+            value: "6379"
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: redisdb
+                key: redis-password
