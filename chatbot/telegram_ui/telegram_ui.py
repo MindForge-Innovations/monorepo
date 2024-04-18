@@ -19,17 +19,13 @@ import logging
 from colorlog import ColoredFormatter
 
 import uvicorn
-
+from pydantic import BaseModel
 
 # ___________________________________________________________________________________________
 # TEMPORARY: Load environment variables from .env file
 from dotenv import load_dotenv, find_dotenv
 
 _ = load_dotenv(find_dotenv())  # read local .env file
-
-import warnings
-
-warnings.filterwarnings("ignore")
 # ___________________________________________________________________________________________
 
 
@@ -114,6 +110,12 @@ I am AIFred, an autonomous API agent, capable to give you information from the A
 """
 
 
+# ~~~ Pydantic models ~~~
+class UserMessage(BaseModel):
+    user_id: str
+    message: str
+
+
 # ~~~ FastAPI listener ~~~
 @app.get("/status/")
 async def get_status():
@@ -128,7 +130,11 @@ async def get_status():
 
 
 @app.post("/reply_to_user/")
-async def reply_to_user(user_id: str, message: str):
+async def reply_to_user(user_message: UserMessage):
+    user_id = user_message.user_id
+    message = user_message.message
+    logger.info(f"Sending {message} to user {user_id}")
+
     try:
         await bot.send_message(chat_id=user_id, text=message)
         logger.info(f"Message sent successfully to user {user_id}")
