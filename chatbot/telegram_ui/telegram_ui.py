@@ -7,6 +7,7 @@ and retrieves information from connected APIs.
 import asyncio
 import os
 import sys
+import json
 from fastapi import FastAPI, HTTPException
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart
@@ -165,6 +166,17 @@ async def echo_handler(message: types.Message):
             response = await client.post(system_http_url, json=user_data)
             if response.status_code == 200:
                 logger.info(f"Data sent successfully: {response.json()}")
+                msg = "Here are the similar APIs that you might be interested in:\n"
+                docs = [
+                    json.loads(doc) for doc in response.json()["documents"][0]
+                ]
+                content = [
+                    f"{c['API_Title'][:-2]}\n\t\t\t{c['Endpoint_Description']}\n"
+                    for c in docs
+                ]
+                content = "".join(content)
+                await bot.send_message(chat_id=user_id, text=f"{msg}{content}")
+
             else:
                 logger.error(f"Failed to send data: {system_http_url}")
                 logger.error(f"Failed to send data: {response}")
