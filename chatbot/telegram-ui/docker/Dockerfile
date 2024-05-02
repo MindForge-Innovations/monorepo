@@ -7,16 +7,14 @@ WORKDIR /app
 # Install any needed packages specified in requirements.txt
 # Copy the requirements file first to leverage Docker cache
 COPY requirements.txt /app/
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
+RUN pip3 install --upgrade pip
+RUN pip3 install --trusted-host --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application
-COPY . /app
+COPY ./src /app
 
 # Make port 80 available to the world outside this container
 EXPOSE 80
 
-# Define environment variable
-ENV NAME World
-
 # Run app.py when the container launches
-CMD ["uvicorn", "api_selector:app", "--host", "0.0.0.0", "--port", "80"]
+ENTRYPOINT ["python3", "telegram_ui.py"]
