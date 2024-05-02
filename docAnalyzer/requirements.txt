@@ -1,4 +1,0 @@
-omegaconf
-pytorch-lightning
-colorlog
-rootutils

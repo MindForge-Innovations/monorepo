@@ -1,4 +1,0 @@
-data_dir: "/home/olivier/projet/pi/monorepo/docAnalyzer/object_detection_project/data"
-batch_size: 4
-num_workers: 4
-shuffle: true
