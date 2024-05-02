@@ -1,0 +1,8 @@
+asyncio
+python-dotenv
+aiogram
+httpx
+colorlog
+pydantic
+uvicorn
+fastapi
