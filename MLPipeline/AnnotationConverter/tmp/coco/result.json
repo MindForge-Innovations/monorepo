@@ -1,0 +1,26 @@
+{
+  "images": [],
+  "categories": [
+    {
+      "id": 0,
+      "name": "figure"
+    },
+    {
+      "id": 1,
+      "name": "text"
+    },
+    {
+      "id": 2,
+      "name": "title"
+    }
+  ],
+  "annotations": [],
+  "info": {
+    "year": 2024,
+    "version": "1.0",
+    "description": "",
+    "contributor": "Label Studio",
+    "url": "",
+    "date_created": "2024-04-27 15:13:09.116536"
+  }
+}
