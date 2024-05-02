@@ -35,7 +35,7 @@ spec:
           - name: TELEGRAM_BOT_TOKEN
             valueFrom:
               secretKeyRef:
-                name: telegram-bot-token
+                name: telegram-bot-token-aifred
                 key: token
           # ~~~ System ~~~
           - name: SYSTEM_SERVER_HOST

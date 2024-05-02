@@ -21,24 +21,9 @@ spec:
         - containerPort: 80
         imagePullPolicy: IfNotPresent
         env:
-          # ~~~ REDIS ~~~
-          - name: REDIS_SERVER_HOST
-            value: "redisdb-master"
-          - name: REDIS_SERVER_HTTP_PORT
-            value: "6379"
-          - name: REDIS_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: redisdb
-                key: redis-password
           # ~~~ TELEGRAM ~~~
           - name: TELEGRAM_BOT_TOKEN
             valueFrom:
               secretKeyRef:
-                name: telegram-bot-token
+                name: telegram-bot-token-notifier
                 key: token
-          # ~~~ System ~~~
-          - name: SYSTEM_SERVER_HOST
-            value: "api-selector"
-          - name: SYSTEM_SERVER_HTTP_PORT
-            value: "80"
