@@ -1,4 +1,3 @@
-hydra 
 omegaconf
 pytorch-lightning
 colorlog
