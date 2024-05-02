@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "./MLPipeline/AnnotationConverter"
+		},
+		{
+			"path": "./docAnalyzer"
+		}
+	],
+	"settings": {}
+}

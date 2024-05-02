@@ -1,5 +1,5 @@
 # ~~~ Imports ~~~
-import hydra
+# import hydra
 from omegaconf import DictConfig
 
 from lightning.pytorch import Trainer
@@ -46,11 +46,11 @@ logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
 
-@hydra.main(
-    config_path="../../configs",
-    config_name="experiment.yaml",
-    version_base="1.1",
-)
+# @hydra.main(
+#     config_path="../../configs",
+#     config_name="experiment.yaml",
+#     version_base="1.1",
+# )
 def main(cfg: DictConfig):
     logger.info(f"Configuration: {cfg}")
     # ~~~ DataLoaders ~~~
