@@ -1,0 +1,14 @@
+<View>
+  <Image name="image" value="$ocr" zoom="true" zoomControl="true" rotateControl="false"/>
+
+  <Labels name="label" toName="image">
+    
+  <Label value="text" background="#58b0f3"/>
+  <Label value="title" background="#20c200"/>
+  <Label value="figure" background="#dbaa66"/>
+  </Labels>
+
+  <Rectangle name="bbox" toName="image" strokeWidth="3"/>
+  <Polygon name="poly" toName="image" strokeWidth="3"/>
+
+</View>

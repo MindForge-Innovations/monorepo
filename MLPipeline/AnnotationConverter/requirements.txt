@@ -1,0 +1,3 @@
+label-studio-converter
+boto3
+python-dotenv
