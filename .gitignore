@@ -4,6 +4,13 @@
 # Secret files
 secrets
 
+# data
+tmp
+data
+logs
+*.log
+*.zip
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
