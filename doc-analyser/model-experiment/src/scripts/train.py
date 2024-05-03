@@ -1,5 +1,5 @@
 # ~~~ Imports ~~~
-# import hydra
+from dataclasses import dataclass
 from omegaconf import DictConfig
 
 from lightning.pytorch import Trainer
@@ -46,43 +46,55 @@ logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
 
-# @hydra.main(
-#     config_path="../../configs",
-#     config_name="experiment.yaml",
-#     version_base="1.1",
-# )
-def main(cfg: DictConfig):
-    logger.info(f"Configuration: {cfg}")
+# ~~~ Configuration ~~~
+@dataclass
+class Config:
+    data_dir: str = (
+        "/home/olivier/projet/pi/monorepo/doc-analyser/model-experiment/data"
+    )
+    batch_size: int = 4
+    num_workers: int = 4
+    shuffle: bool = True
+    weights: str = "FasterRCNN_ResNet50_FPN_V2_Weights.DEFAULT"
+    dataset_files = ("CRH.yaml", "fasterRCNN_v2.yaml")
+    experiment_name: str = "doc-analyzer-v1.0"
+    logger_uri: str = "file:./mlruns"
+    max_epochs: int = 5
+
+
+def main(config: Config):
+    logger.info(f"Configuration: {config}")
     # ~~~ DataLoaders ~~~
     train_dataloader = create_dataloader(
-        cfg.dataset.data_dir,
+        config.data_dir,
         "train",
-        cfg.dataset.batch_size,
-        cfg.dataset.num_workers,
-        cfg.dataset.shuffle,
+        config.batch_size,
+        config.num_workers,
+        config.shuffle,
     )
 
     val_dataloader = create_dataloader(
-        cfg.dataset.data_dir,
-        "val",
-        cfg.dataset.batch_size,
-        cfg.dataset.num_workers,
-        not cfg.dataset.shuffle,
+        config.data_dir,
+        "test",
+        config.batch_size,
+        config.num_workers,
+        not config.shuffle,
     )
+
     logger.info("DataLoaders créés.")
 
     # ~~~ Model Initialization ~~~
-    model = FasterRCNNModule(cfg.model.weights)
+    model = FasterRCNNModule(config.weights)
 
     # ~~~ Logger ~~~
     mlf_logger = MLFlowLogger(
-        experiment_name="lightning_logs", tracking_uri="file:./mlruns"
+        experiment_name=config.experiment_name, tracking_uri=config.logger_uri
     )
 
     # ~~~ Training ~~~
     trainer = Trainer(
         limit_train_batches=100,
-        max_epochs=1,
+        max_epochs=config.max_epochs,
         logger=mlf_logger,
     )
 
@@ -94,5 +106,5 @@ def main(cfg: DictConfig):
 if __name__ == "__main__":
 
     logger.info("Welcome to the object detection training script.")
-
-    main()
+    config = Config()
+    main(config)
