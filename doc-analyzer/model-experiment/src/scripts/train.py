@@ -21,8 +21,8 @@ rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 # - loading environment variables from ".env" in root dir
 # more info: https://github.com/ashleve/rootutils
 # ------------------------------------------------------------------------------------ #
-from src.lightning_modules.object_detector import FasterRCNNModule
-from src.utils.dataloader import create_dataloader
+from src.models.object_detector import FasterRCNNModule
+from src.data.data_module import GrotiusDataModule
 
 # ~~~ Configuration du logger ~~~
 handler = colorlog.StreamHandler()
@@ -50,7 +50,7 @@ logger.setLevel(logging.DEBUG)
 @dataclass
 class Config:
     data_dir: str = (
-        "/home/olivier/projet/pi/monorepo/doc-analyser/model-experiment/data"
+        "/home/olivier/projet/pi/monorepo/doc-analyzer/model-experiment/data"
     )
     batch_size: int = 4
     num_workers: int = 4
@@ -64,21 +64,10 @@ class Config:
 
 def main(config: Config):
     logger.info(f"Configuration: {config}")
-    # ~~~ DataLoaders ~~~
-    train_dataloader = create_dataloader(
-        config.data_dir,
-        "train",
-        config.batch_size,
-        config.num_workers,
-        config.shuffle,
-    )
 
-    val_dataloader = create_dataloader(
-        config.data_dir,
-        "test",
-        config.batch_size,
-        config.num_workers,
-        not config.shuffle,
+    # ~~~ Data Preparation ~~~
+    data_module = GrotiusDataModule(
+        config.data_dir, config.batch_size, config.num_workers, config.shuffle
     )
 
     logger.info("DataLoaders créés.")
@@ -88,7 +77,9 @@ def main(config: Config):
 
     # ~~~ Logger ~~~
     mlf_logger = MLFlowLogger(
-        experiment_name=config.experiment_name, tracking_uri=config.logger_uri
+        experiment_name=config.experiment_name,
+        tracking_uri=config.logger_uri,
+        log_model=True,
     )
 
     # ~~~ Training ~~~
@@ -99,7 +90,10 @@ def main(config: Config):
     )
 
     logger.info("Entraînement du modèle...")
-    trainer.fit(model, train_dataloader, val_dataloader)
+    trainer.fit(
+        model,
+        train_dataloaders=data_module,
+    )
     logger.info("Entraînement terminé.")
 
 
