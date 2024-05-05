@@ -46,11 +46,13 @@ class FasterRCNNModule(L.LightningModule):
 
     def training_step(self, batch, batch_idx):
         images, targets = batch
+
+        # ~~~ Training loss ~~~
         self.model.train()
         loss_dict = self.model(images, targets)
         loss = sum(loss for loss in loss_dict.values())
 
-        # Training IoU computation
+        # ~~~ Training IoU ~~~
         self.model.eval()
         outputs = self.model(images)
         self.iou.update(outputs, targets)
@@ -68,6 +70,7 @@ class FasterRCNNModule(L.LightningModule):
             on_step=False,
             on_epoch=True,
             logger=True,
+            batch_size=len(batch),
         )
         self.log(
             "train_loss",
@@ -82,14 +85,29 @@ class FasterRCNNModule(L.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         images, targets = batch
+
+        # ~~~ Val loss ~~~
+        self.model.train()
+        loss_dict = self.model(images, targets)
+        loss = sum(loss for loss in loss_dict.values())
+        self.log(
+            "val_loss",
+            loss,
+            on_step=True,
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
+            batch_size=len(batch),
+        )
+
         self.model.eval()
         with torch.no_grad():
             outputs = self.model(images)
 
-            # For IoU computation during validation
+            # ~~~ Val IoU ~~~
             self.iou.update(outputs, targets)
-            val_iou = self.iou.compute()  # Compute the current IoU
-            self.iou.reset()  # Reset the IoU for the next batch/epoch
+            val_iou = self.iou.compute()
+            self.iou.reset()
 
             val_mapping = {
                 "iou": "val_iou",
@@ -102,6 +120,7 @@ class FasterRCNNModule(L.LightningModule):
                 on_step=False,
                 on_epoch=True,
                 logger=True,
+                batch_size=len(batch),
             )
 
     def test_step(self, batch, batch_idx):
@@ -112,22 +131,23 @@ class FasterRCNNModule(L.LightningModule):
         labels = torch.cat(targets)
 
         # ~~~ Confusion Matrix ~~~
-        cm = multiclass_confusion_matrix(
-            labels.cpu(), preds.cpu(), num_classes=3
-        )
-        fig = plt.figure(figsize=(10, 10))
-        sns.heatmap(cm, annot=True, fmt="g", cmap="Blues")
-        plt.xlabel("Predicted labels")
-        plt.ylabel("True labels")
-        plt.title("Confusion Matrix")
+        # https://github.com/Lightning-AI/pytorch-lightning/discussions/18274
+        # cm = multiclass_confusion_matrix(
+        #     labels.cpu(), preds.cpu(), num_classes=3
+        # )
+        # fig = plt.figure(figsize=(10, 10))
+        # sns.heatmap(cm, annot=True, fmt="g", cmap="Blues")
+        # plt.xlabel("Predicted labels")
+        # plt.ylabel("True labels")
+        # plt.title("Confusion Matrix")
 
-        mlf_logger = self.logger.experiment
-        mlf_logger.add_figure("Confusion Matrix", fig, self.current_epoch)
+        # mlf_logger = self.logger.experiment
+        # mlf_logger.add_figure("Confusion Matrix", fig, self.current_epoch)
         # ~~~ IoU ~~~
         metric = IntersectionOverUnion(class_metrics=True)
         iou = metric(predictions, targets)
 
-        self.log("test_iou", iou, logger=True)
+        self.log("test_iou", iou, logger=True, batch_size=len(batch))
         self.iou.reset()
 
     def configure_optimizers(self):

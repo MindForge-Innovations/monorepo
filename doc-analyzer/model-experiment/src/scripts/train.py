@@ -52,7 +52,7 @@ class Config:
     data_dir: str = (
         "/home/olivier/projet/pi/monorepo/doc-analyzer/model-experiment/data"
     )
-    batch_size: int = 4
+    batch_size: int = 1
     num_workers: int = 4
     shuffle: bool = True
     weights: str = "FasterRCNN_ResNet50_FPN_V2_Weights.DEFAULT"
@@ -69,8 +69,8 @@ def main(config: Config):
     data_module = GrotiusDataModule(
         config.data_dir, config.batch_size, config.num_workers, config.shuffle
     )
-
-    logger.info("DataLoaders créés.")
+    data_module.setup()
+    logger.info("Data chargée avec succès")
 
     # ~~~ Model Initialization ~~~
     model = FasterRCNNModule(config.weights)
