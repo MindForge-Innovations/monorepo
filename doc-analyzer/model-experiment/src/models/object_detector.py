@@ -127,10 +127,10 @@ class FasterRCNNModule(L.LightningModule):
 
         images, targets = batch
         predictions = self(images)
-        preds = torch.cat(predictions)
-        labels = torch.cat(targets)
 
         # ~~~ Confusion Matrix ~~~
+        # preds = torch.cat(predictions)
+        # labels = torch.cat(targets)
         # https://github.com/Lightning-AI/pytorch-lightning/discussions/18274
         # cm = multiclass_confusion_matrix(
         #     labels.cpu(), preds.cpu(), num_classes=3
@@ -143,12 +143,13 @@ class FasterRCNNModule(L.LightningModule):
 
         # mlf_logger = self.logger.experiment
         # mlf_logger.add_figure("Confusion Matrix", fig, self.current_epoch)
-        # ~~~ IoU ~~~
-        metric = IntersectionOverUnion(class_metrics=True)
-        iou = metric(predictions, targets)
 
-        self.log("test_iou", iou, logger=True, batch_size=len(batch))
-        self.iou.reset()
+        # ~~~ IoU ~~~
+        metric = IntersectionOverUnion()
+        iou = metric(predictions, targets)
+        self.log_dict(iou, logger=True, batch_size=len(batch))
+
+        # ~~~ Save ONNX ~~~
 
     def configure_optimizers(self):
         optimizer = torch.optim.SGD(
