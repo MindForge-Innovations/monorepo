@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: telegram-ui
-        image: telegram_ui:latest
+        image: registry.forge.hefr.ch/samuli.lehtinen/mse-ai-market-place/telegram-ui:latest # telegram_ui:latest
         ports:
         - containerPort: 80
         imagePullPolicy: IfNotPresent
@@ -42,3 +42,5 @@ spec:
             value: "api-selector"
           - name: SYSTEM_SERVER_HTTP_PORT
             value: "80"
+      imagePullSecrets:
+      - name: my-rancher-pwd

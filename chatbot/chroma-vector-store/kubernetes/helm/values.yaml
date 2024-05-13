@@ -6,11 +6,13 @@ replicaCount: 1
 
 image:
 #  repository: ghcr.io/chroma-core/chroma
-  repository: chroma-db
+  repository: registry.forge.hefr.ch/samuli.lehtinen/mse-ai-market-place/chroma-db
   tag: latest
   pullPolicy: IfNotPresent
 
-imagePullSecrets: [ ]
+imagePullSecrets: 
+  - name: my-rancher-pwd
+
 nameOverride: ""
 fullnameOverride: ""
 

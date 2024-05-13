@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: api-selector
-        image: api_selector:latest
+        image: registry.forge.hefr.ch/samuli.lehtinen/mse-ai-market-place/api-selector:latest # api_selector:latest
         ports:
         - containerPort: 80
         imagePullPolicy: IfNotPresent
@@ -41,3 +41,5 @@ spec:
               secretKeyRef:
                 name: redisdb
                 key: redis-password
+      imagePullSecrets:
+      - name: my-rancher-pwd
