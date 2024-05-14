@@ -17,6 +17,6 @@ COPY custom_entrypoint.sh /chroma/custom_entrypoint.sh
 
 # Make the custom entrypoint executable
 RUN chmod +x /chroma/custom_entrypoint.sh
-
+# docker file change test
 # Use the custom entrypoint
 ENTRYPOINT ["/chroma/custom_entrypoint.sh"]
