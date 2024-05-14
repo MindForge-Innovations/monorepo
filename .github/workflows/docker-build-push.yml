@@ -36,7 +36,8 @@ jobs:
           while IFS= read -r file; do
             SERVICE=$(echo $file | cut -d'/' -f2)
       #      IMAGE_NAME=$REGISTRY_URL/your-namespace/$SERVICE:latest
-            IMAGE_NAME=$REGISTRY_URL/your-namespace/$SERVICE:latest
+      #      IMAGE_NAME=$REGISTRY_URL/your-namespace/$SERVICE:latest
+            IMAGE_NAME=dummyURL/dummyNamespace/dummyService:latest
             docker build -t $IMAGE_NAME -f $file $(dirname $file)
       #      docker push $IMAGE_NAME
           done < changed_files.txt
