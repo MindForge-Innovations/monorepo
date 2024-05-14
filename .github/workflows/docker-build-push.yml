@@ -31,7 +31,7 @@ jobs:
           git diff --name-only origin/main | grep 'dockerfile' | tee changed_files.txt
 
       - name: Build and Push Docker Images
-        if: success() && steps.changes.outputs.files
+        if: ${{ success() && fromJSON('[""]') != steps.changes.outputs.files }}
         run: |
           while IFS= read -r file; do
             SERVICE=$(echo $file | cut -d'/' -f2)
