@@ -44,3 +44,4 @@ jobs:
                   docker build -t $IMAGE_NAME -f $file $(dirname $file)
             #      docker push $IMAGE_NAME
                 done < changed_files.txt
+              fi
