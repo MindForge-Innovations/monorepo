@@ -15,6 +15,6 @@ COPY ./src /app
 
 # Make port 80 available to the world outside this container
 EXPOSE 80
-
+# test of the pipeline
 # Run app.py when the container launches
 ENTRYPOINT ["python3", "telegram_ui.py"]

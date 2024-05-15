@@ -27,6 +27,8 @@ jobs:
           echo "$CHANGED_FILES" > changed_files.txt
           if grep -q 'ockerfile' changed_files.txt; then
             echo "Found a file containing 'ockerfile'."
+            echo "Paths of changed files:"
+            grep 'ockerfile' changed_files.txt
           else
             echo "No file containing 'ockerfile' found."
           fi
