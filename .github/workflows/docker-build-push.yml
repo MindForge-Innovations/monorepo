@@ -16,13 +16,20 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Build and Push Changes
+      - name: Check for changes in Dockerfiles
         run: |
           git fetch origin main
           changed_files=$(git diff --name-only origin/main | grep 'ockerfile')
           if [ -n "$changed_files" ]; then
-            echo "$changed_files"  
+            echo "Changes detected in the following Dockerfiles:"
+            echo "$changed_files"
           else
             echo "No changes in Dockerfiles. Exiting..."
             exit 0
           fi
+
+      - name: Build and Push Docker Images
+        run: |
+          # Add your Docker build and push commands here
+          echo "Building and pushing Docker images..."
+        if: steps.changed-files.outputs.changed == 'true'
