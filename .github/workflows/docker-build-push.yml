@@ -21,8 +21,7 @@ jobs:
           git fetch origin main
           changed_files=$(git diff --name-only origin/main | grep 'ockerfile')
           if [ -n "$changed_files" ]; then
-            echo "$changed_files" 
-            done
+            echo "$changed_files"  
           else
             echo "No changes in Dockerfiles. Exiting..."
             exit 0
