@@ -19,13 +19,10 @@ jobs:
       - name: Build and Push Changes
         run: |
           git fetch origin main
-          if [ -n "$(git diff --name-only origin/main | grep 'ockerfile')" ]; then
-            while IFS= read -r file; do
-              SERVICE=$(echo $file | cut -d'/' -f2)
-              IMAGE_NAME=dummyURL/dummyNamespace/$SERVICE:latest
-              docker build -t $IMAGE_NAME -f $file $(dirname $file)
-              docker push $IMAGE_NAME
-            done < changed_files.txt
+          changed_files=$(git diff --name-only origin/main | grep 'ockerfile')
+          if [ -n "$changed_files" ]; then
+            echo "$changed_files" 
+            done
           else
             echo "No changes in Dockerfiles. Exiting..."
             exit 0
