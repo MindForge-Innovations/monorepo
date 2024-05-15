@@ -18,5 +18,6 @@ COPY custom_entrypoint.sh /chroma/custom_entrypoint.sh
 # Make the custom entrypoint executable
 RUN chmod +x /chroma/custom_entrypoint.sh
 # extra comment to check pipeline
+#another extra comment
 # Use the custom entrypoint
 ENTRYPOINT ["/chroma/custom_entrypoint.sh"]

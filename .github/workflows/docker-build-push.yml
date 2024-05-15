@@ -21,8 +21,12 @@ jobs:
       - name: Get changes
         run: git diff --name-only -r HEAD^1 HEAD
 
-      - name: Build and Push Docker Images
+      - name: Check for dockerfile changed files
         run: |
-          # Add your Docker build and push commands here
-          echo "Building and pushing Docker images..."
-        if: steps.changed-files.outputs.changed == 'true'
+          CHANGED_FILES=$(git diff --name-only -r HEAD^1 HEAD)
+          echo "$CHANGED_FILES" > changed_files.txt
+          if grep -q 'ockerfile' changed_files.txt; then
+            echo "Found a file containing 'ockerfile'."
+          else
+            echo "No file containing 'ockerfile' found."
+          fi
