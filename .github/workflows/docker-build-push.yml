@@ -24,7 +24,6 @@ jobs:
           CHANGED_FILES=$(git diff --name-only -r HEAD^1 HEAD)
           echo "$CHANGED_FILES" > changed_files.txt
           echo "CHANGED_FILES=$CHANGED_FILES" >> .env
-          echo "changed_files=$CHANGED_FILES" >> $GITHUB_ENV
 
       - name: Check for dockerfile changed files
         id: check-dockerfiles
