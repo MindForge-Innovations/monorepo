@@ -51,7 +51,7 @@ jobs:
               IMAGE_NAME=$(dirname $DOCKERFILE | tr / -)
               IMAGE_TAG="registry.forge.hefr.ch/${{ secrets.DOCKER_PASSWORD }}/mse-ai-market-place/${IMAGE_NAME}:fromgithub"
               echo "Building $IMAGE_TAG"
-              docker build -t $IMAGE_TAG -f $DOCKERFILE
+              docker build -t $IMAGE_TAG $DOCKERFILE
               echo "Pushing $IMAGE_TAG"
               docker push $IMAGE_TAG
             done
