@@ -28,7 +28,7 @@ jobs:
       - name: Check for dockerfile changed files
         id: check-dockerfiles
         run: |
-          DOCKERFILES=$(echo "$CHANGED_FILES" | grep -i 'dockerfile' || true)
+          DOCKERFILES=$(echo "$CHANGED_FILES" | grep 'ockerfile' || true)
           if [ -z "$DOCKERFILES" ]; then
             echo "No Dockerfile changes detected."
             exit 0
