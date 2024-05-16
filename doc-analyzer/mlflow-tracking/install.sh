@@ -1,6 +1,6 @@
 #!/bin/bash
 
-KUBE_NAMESPACE="br2-doc-analyzer-2"
+KUBE_NAMESPACE="br2-doc-analyzer-3"
 
 HELM_VALUES_FILE="kubernetes/helm/values.yaml"
 RELEASE_NAME="mlflow-tracking"
