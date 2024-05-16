@@ -28,10 +28,6 @@ jobs:
       - name: Check for dockerfile changed files
         id: check-dockerfiles
         run: |
-          # Source the .env file to load environment variables
-          set -o allexport
-          source .env
-          set +o allexport
           DOCKERFILES=$(echo "$CHANGED_FILES" | grep -i 'dockerfile' || true)
           if [ -z "$DOCKERFILES" ]; then
             echo "No Dockerfile changes detected."
