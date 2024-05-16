@@ -27,7 +27,7 @@ jobs:
             echo "Dockerfile changes detected:"
             grep 'ockerfile' changed_files.txt
             DOCKERFILES=$(grep 'ockerfile' changed_files.txt)
-            echo "DOCKERFILES=$DOCKERFILES" >> $GITHUB_ENV
+            echo "DOCKERFILES=$(echo $DOCKERFILES)" >> $GITHUB_ENV
           else
             echo "No Dockerfile changes detected."
             exit 0
