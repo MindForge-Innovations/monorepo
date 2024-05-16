@@ -23,13 +23,13 @@ jobs:
         run: |
           CHANGED_FILES=$(git diff --name-only -r HEAD^1 HEAD)
           echo "$CHANGED_FILES" > changed_files.txt
-          echo "::set-output name=changed_files::$CHANGED_FILES"
+          echo "changed_files=$CHANGED_FILES" >> $GITHUB_ENV
 
       - name: Check for dockerfile changed files
         id: check-dockerfiles
         run: |
-          CHANGED_FILES=$(echo "${{ steps.get-changes.outputs.changed_files }}")
-          DOCKERFILES=$(echo "$CHANGED_FILES" | grep 'ockerfile' || true)
+          CHANGED_FILES="${{ env.changed_files }}"
+          DOCKERFILES=$(echo "$CHANGED_FILES" | grep -i 'dockerfile' || true)
           if [ -z "$DOCKERFILES" ]; then
             echo "No Dockerfile changes detected."
             exit 0
