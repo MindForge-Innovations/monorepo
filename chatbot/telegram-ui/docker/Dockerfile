@@ -11,7 +11,7 @@ RUN pip3 install --upgrade pip
 RUN pip3 install --trusted-host --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application
-COPY ./src /app
+COPY ../src /app
 
 # Make port 80 available to the world outside this container
 EXPOSE 80
