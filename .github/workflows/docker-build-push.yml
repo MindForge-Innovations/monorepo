@@ -46,6 +46,8 @@ jobs:
 
       - name: Build and Push Docker Images
         run: |
+          ls
+          pwd
           if [ -n "${{ env.DOCKERFILES }}" ]; then
             for DOCKERFILE in ${{ env.DOCKERFILES }}; do
               IMAGE_NAME=$(dirname $DOCKERFILE | tr / -)
