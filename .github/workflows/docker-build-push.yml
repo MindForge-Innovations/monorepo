@@ -18,26 +18,21 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Get changes
+      - name: Get changes & check for Dockerfile changes
         id: get-changes
         run: |
           CHANGED_FILES=$(git diff --name-only -r HEAD^1 HEAD)
           echo "$CHANGED_FILES" > changed_files.txt
-          echo "CHANGED_FILES=$CHANGED_FILES" >> .env
-
-      - name: Check for dockerfile changed files
-        id: check-dockerfiles
-        run: |
-          DOCKERFILES=$(echo "$CHANGED_FILES" | grep 'ockerfile' || true)
-          if [ -z "$DOCKERFILES" ]; then
+          if grep -q 'ockerfile' changed_files.txt; then
+            echo "Dockerfile changes detected:"
+            echo "$DOCKERFILES"
+            echo "DOCKERFILES=$DOCKERFILES" >> .env
+            echo "dockerfiles=$DOCKERFILES" >> $GITHUB_ENV
+          else
             echo "No Dockerfile changes detected."
             exit 0
           fi
-          echo "Dockerfile changes detected:"
-          echo "$DOCKERFILES"
-          echo "DOCKERFILES=$DOCKERFILES" >> .env
-          echo "dockerfiles=$DOCKERFILES" >> $GITHUB_ENV
-
+          
       - name: Save .env to GitHub secret
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
@@ -52,9 +47,13 @@ jobs:
       - name: Build and Push Docker Images
         if: steps.check-dockerfiles.outputs.dockerfiles != ''
         run: |
-          for DOCKERFILE in ${{ steps.check-dockerfiles.outputs.dockerfiles }}; do
-            IMAGE_NAME=$(dirname $DOCKERFILE | tr / -)
-            IMAGE_TAG="registry.forge.hefr.ch/${{ secrets.DOCKER_PASSWORD }}/mse-ai-market-place/${IMAGE_NAME}:latest"
-            echo "Building and pushing $IMAGE_TAG"
-            docker buildx build --push -t $IMAGE_TAG -f $DOCKERFILE .
-          done
+          if [ -n "${{ env.DOCKERFILES }}" ]; then
+            for DOCKERFILE in ${{ steps.check-dockerfiles.outputs.dockerfiles }}; do
+              IMAGE_NAME=$(dirname $DOCKERFILE | tr / -)
+              IMAGE_TAG="registry.forge.hefr.ch/${{ secrets.DOCKER_PASSWORD }}/mse-ai-market-place/${IMAGE_NAME}:latest"
+              echo "Building and pushing $IMAGE_TAG"
+              docker buildx build --push -t $IMAGE_TAG -f $DOCKERFILE .
+            done
+          else 
+            echo "No Dockerfile changes detected."
+          fi
