@@ -46,14 +46,14 @@ jobs:
 
       - name: Build and Push Docker Images
         run: |
-          ls
-          pwd
           if [ -n "${{ env.DOCKERFILES }}" ]; then
             for DOCKERFILE in ${{ env.DOCKERFILES }}; do
+              # Extract the path until "docker/" directory
+              DOCKER_PATH=$(dirname "$DOCKERFILE")
               IMAGE_NAME=$(dirname $DOCKERFILE | tr / -)
               IMAGE_TAG="registry.forge.hefr.ch/${{ secrets.DOCKER_USERNAME }}/mse-ai-market-place/${IMAGE_NAME}:fromgithub"
               echo "Building $IMAGE_TAG"
-              docker build -t $IMAGE_TAG $DOCKERFILE
+              docker build -t $IMAGE_TAG $DOCKER_PATH
               echo "Pushing $IMAGE_TAG"
               docker push $IMAGE_TAG
             done
