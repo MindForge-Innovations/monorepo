@@ -23,12 +23,16 @@ jobs:
         run: |
           CHANGED_FILES=$(git diff --name-only -r HEAD^1 HEAD)
           echo "$CHANGED_FILES" > changed_files.txt
+          echo "CHANGED_FILES=$CHANGED_FILES" >> .env
           echo "changed_files=$CHANGED_FILES" >> $GITHUB_ENV
 
       - name: Check for dockerfile changed files
         id: check-dockerfiles
         run: |
-          CHANGED_FILES="${{ env.changed_files }}"
+          # Source the .env file to load environment variables
+          set -o allexport
+          source .env
+          set +o allexport
           DOCKERFILES=$(echo "$CHANGED_FILES" | grep -i 'dockerfile' || true)
           if [ -z "$DOCKERFILES" ]; then
             echo "No Dockerfile changes detected."
@@ -36,8 +40,12 @@ jobs:
           fi
           echo "Dockerfile changes detected:"
           echo "$DOCKERFILES"
-          echo "::set-output name=dockerfiles::$DOCKERFILES"
+          echo "DOCKERFILES=$DOCKERFILES" >> .env
+          echo "dockerfiles=$DOCKERFILES" >> $GITHUB_ENV
 
+      - name: Save .env to GitHub secret
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
