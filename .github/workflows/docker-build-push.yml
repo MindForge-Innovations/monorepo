@@ -47,7 +47,7 @@ jobs:
       - name: Build and Push Docker Images
         run: |
           if [ -n "${{ env.DOCKERFILES }}" ]; then
-            for DOCKERFILE in ${{ steps.check-dockerfiles.outputs.dockerfiles }}; do
+            for DOCKERFILE in ${{ env.DOCKERFILES }}; do
               IMAGE_NAME=$(dirname $DOCKERFILE | tr / -)
               IMAGE_TAG="registry.forge.hefr.ch/${{ secrets.DOCKER_PASSWORD }}/mse-ai-market-place/${IMAGE_NAME}:latest"
               echo "Building and pushing $IMAGE_TAG"
