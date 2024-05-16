@@ -51,7 +51,7 @@ jobs:
         run: |
           for DOCKERFILE in ${{ steps.check-dockerfiles.outputs.dockerfiles }}; do
             IMAGE_NAME=$(dirname $DOCKERFILE | tr / -)
-            IMAGE_TAG="registry.forge.hefr.ch/${secrets.DOCKER_USERNAME}/mse-ai-market-place/${IMAGE_NAME}:latest"
+            IMAGE_TAG="registry.forge.hefr.ch/${{ secrets.DOCKER_PASSWORD }}/mse-ai-market-place/${IMAGE_NAME}:latest"
             echo "Building and pushing $IMAGE_TAG"
             docker buildx build --push -t $IMAGE_TAG -f $DOCKERFILE .
           done
