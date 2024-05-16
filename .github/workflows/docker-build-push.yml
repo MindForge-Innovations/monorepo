@@ -25,9 +25,9 @@ jobs:
           echo "$CHANGED_FILES" > changed_files.txt
           if grep -q 'ockerfile' changed_files.txt; then
             echo "Dockerfile changes detected:"
-            echo "$DOCKERFILES"
-            echo "DOCKERFILES=$DOCKERFILES" >> .env
-            echo "dockerfiles=$DOCKERFILES" >> $GITHUB_ENV
+            grep 'ockerfile' changed_files.txt
+            DOCKERFILES=$(grep 'ockerfile' changed_files.txt)
+            echo "DOCKERFILES=$DOCKERFILES" >> $GITHUB_ENV
           else
             echo "No Dockerfile changes detected."
             exit 0
@@ -45,7 +45,6 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and Push Docker Images
-        if: steps.check-dockerfiles.outputs.dockerfiles != ''
         run: |
           if [ -n "${{ env.DOCKERFILES }}" ]; then
             for DOCKERFILE in ${{ steps.check-dockerfiles.outputs.dockerfiles }}; do
