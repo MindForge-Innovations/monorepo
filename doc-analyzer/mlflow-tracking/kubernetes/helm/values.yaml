@@ -85,7 +85,7 @@ diagnosticMode:
 image:
   registry: docker.io
   repository: bitnami/mlflow
-  tag: 2.12.1-debian-12-r0
+  tag: 2.12.2-debian-12-r1
   digest: ""
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -115,7 +115,7 @@ image:
 gitImage:
   registry: docker.io
   repository: bitnami/git
-  tag: 2.45.0-debian-12-r0
+  tag: 2.45.0-debian-12-r3
   digest: ""
   pullPolicy: IfNotPresent
   ## Optionally specify an array of imagePullSecrets.
@@ -218,7 +218,7 @@ tracking:
   ## @param tracking.podSecurityContext.fsGroup Set mlflow pod's Security Context fsGroup
   ##
   podSecurityContext:
-    enabled: true
+    enabled: false
     fsGroupChangePolicy: Always
     sysctls: []
     supplementalGroups: []
@@ -237,7 +237,7 @@ tracking:
   ## @param tracking.containerSecurityContext.seccompProfile.type Set container's Security Context seccomp profile
   ##
   containerSecurityContext:
-    enabled: true
+    enabled: false
     seLinuxOptions: {}
     runAsUser: 1001
     runAsGroup: 1001
@@ -247,8 +247,8 @@ tracking:
     allowPrivilegeEscalation: false
     capabilities:
       drop: ["ALL"]
-    seccompProfile:
-      type: "RuntimeDefault"
+    # seccompProfile:
+    #   type: ""
   ## Basic authentication
   ## @param tracking.auth.enabled Enable basic authentication
   ## @param tracking.auth.username Admin username
@@ -259,7 +259,7 @@ tracking:
   ## @param tracking.auth.extraOverrides Add extra settings to the basic_auth.ini file
   ## @param tracking.auth.overridesConfigMap Name of a ConfigMap containing overrides to the basic_auth.ini file
   auth:
-    enabled: true
+    enabled: false
     username: user
     password: ""
     existingSecret: ""
@@ -485,7 +485,7 @@ tracking:
   service:
     ## @param tracking.service.type mlflow service type
     ##
-    type: LoadBalancer
+    type: ClusterIP
     ## @param tracking.service.ports.http mlflow service HTTP port
     ## @param tracking.service.ports.https mlflow service HTTPS port
     ##
@@ -546,13 +546,13 @@ tracking:
   ingress:
     ## @param tracking.ingress.enabled Enable ingress record generation for mlflow
     ##
-    enabled: false
+    enabled: true
     ## @param tracking.ingress.pathType Ingress path type
     ##
     pathType: ImplementationSpecific
     ## @param tracking.ingress.hostname Default host for the ingress record
     ##
-    hostname: mlflow.local
+    hostname: mlflow.kube.isc.heia-fr.ch
     ## @param tracking.ingress.ingressClassName IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
     ## This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
     ## ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
@@ -936,7 +936,7 @@ run:
   ## @param run.podSecurityContext.fsGroup Set Run pod's Security Context fsGroup
   ##
   podSecurityContext:
-    enabled: true
+    enabled: false
     fsGroupChangePolicy: Always
     sysctls: []
     supplementalGroups: []
@@ -955,7 +955,7 @@ run:
   ## @param run.containerSecurityContext.seccompProfile.type Set Run container's Security Context seccomp profile
   ##
   containerSecurityContext:
-    enabled: true
+    enabled: false
     seLinuxOptions: {}
     runAsUser: 1001
     runAsGroup: 1001
@@ -965,8 +965,8 @@ run:
     allowPrivilegeEscalation: false
     capabilities:
       drop: ["ALL"]
-    seccompProfile:
-      type: "RuntimeDefault"
+    # seccompProfile:
+    #   type: ""
   ## @param run.lifecycleHooks for the run container(s) to automate configuration before or after startup
   ##
   lifecycleHooks: {}
@@ -1188,7 +1188,7 @@ run:
   persistence:
     ## @param run.persistence.enabled Use a PVC to persist data
     ##
-    enabled: true
+    enabled: false
     ## @param run.persistence.storageClass discourse & sidekiq data Persistent Volume Storage Class
     ## If defined, storageClassName: <storageClass>
     ## If set to "-", storageClassName: "", which disables dynamic provisioning
@@ -1252,7 +1252,7 @@ volumePermissions:
   image:
     registry: docker.io
     repository: bitnami/os-shell
-    tag: 12-debian-12-r19
+    tag: 12-debian-12-r21
     pullPolicy: IfNotPresent
     ## Optionally specify an array of imagePullSecrets.
     ## Secrets must be manually created in the namespace.
@@ -1289,7 +1289,7 @@ volumePermissions:
   ##   "auto" is especially useful for OpenShift which has scc with dynamic user ids (and 0 is not allowed)
   ##
   containerSecurityContext:
-    enabled: true
+    enabled: false
     seLinuxOptions: {}
     runAsUser: 0
 waitContainer:
@@ -1301,7 +1301,7 @@ waitContainer:
   image:
     registry: docker.io
     repository: bitnami/os-shell
-    tag: 12-debian-12-r19
+    tag: 12-debian-12-r21
     digest: ""
     ## @param waitContainer.image.pullPolicy Init container wait-container image pull policy
     ##
@@ -1329,7 +1329,7 @@ waitContainer:
   ## @param waitContainer.containerSecurityContext.seccompProfile.type Set container's Security Context seccomp profile
   ##
   containerSecurityContext:
-    enabled: true
+    enabled: false
     seLinuxOptions: {}
     runAsUser: 1001
     runAsGroup: 1001
@@ -1339,8 +1339,8 @@ waitContainer:
     allowPrivilegeEscalation: false
     capabilities:
       drop: ["ALL"]
-    seccompProfile:
-      type: "RuntimeDefault"
+    # seccompProfile:
+    #   type: ""
 ## @section PostgreSQL chart configuration
 ## ref: https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml
 ## @param postgresql.enabled Switch to enable or disable the PostgreSQL helm chart
@@ -1352,7 +1352,7 @@ waitContainer:
 ## @param postgresql.primary.service.ports.postgresql PostgreSQL service port
 ##
 postgresql:
-  enabled: true
+  enabled: false
   auth:
     username: bn_mlflow
     password: ""
@@ -1399,7 +1399,7 @@ minio:
   ## @param minio.enabled Enable/disable MinIO&reg; chart installation
   ## to be used as an objstore for Mlflow
   ##
-  enabled: true
+  enabled: false
   ## MinIO&reg; authentication parameters
   ##
   auth:
