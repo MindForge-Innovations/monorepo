@@ -321,8 +321,8 @@ master:
     runAsNonRoot: true
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
-    seccompProfile:
-      type: RuntimeDefault
+    #seccompProfile:
+    #  type: RuntimeDefault
     capabilities:
       drop: ["ALL"]
   ## @param master.kind Use either Deployment, StatefulSet (default) or DaemonSet
@@ -783,8 +783,8 @@ replica:
     runAsNonRoot: true
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
-    seccompProfile:
-      type: RuntimeDefault
+    #seccompProfile:
+    #  type: RuntimeDefault
     capabilities:
       drop: ["ALL"]
   ## @param replica.schedulerName Alternate scheduler for Redis&reg; replicas pods
@@ -1338,8 +1338,8 @@ sentinel:
     runAsNonRoot: true
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
-    seccompProfile:
-      type: RuntimeDefault
+    #seccompProfile:
+    #  type: RuntimeDefault
     capabilities:
       drop: ["ALL"]
   ## @param sentinel.lifecycleHooks for the Redis&reg; sentinel container(s) to automate configuration before or after startup
@@ -1714,8 +1714,8 @@ metrics:
     runAsNonRoot: true
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
-    seccompProfile:
-      type: RuntimeDefault
+    #seccompProfile:
+    #  type: RuntimeDefault
     capabilities:
       drop: ["ALL"]
   ## @param metrics.extraVolumes Optionally specify extra list of additional volumes for the Redis&reg; metrics sidecar
@@ -2072,8 +2072,8 @@ kubectl:
     runAsNonRoot: true
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
-    seccompProfile:
-      type: RuntimeDefault
+    #seccompProfile:
+    #  type: RuntimeDefault
     capabilities:
       drop: ["ALL"]
   ## Bitnami Kubectl resource requests and limits
