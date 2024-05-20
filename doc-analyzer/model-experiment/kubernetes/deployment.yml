@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: br2-classifier-train
+  labels:
+    app: classifier-train
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: classifier-train
+  template:
+    metadata:
+      labels:
+        app: classifier-train
+    spec:
+      containers:
+      - name: classifier-train
+        image: msebr2/doc-classifier
+        ports:
+          - containerPort: 80
+        envFrom:
+          - configMapRef:
+              name: doc-classifier-env
+        volumeMounts:
+          - name: aws-credentials
+            mountPath: /secrets/.aws
+          - name: ls-api-token
+            mountPath: /secrets/.lstudio
+          - name: msebr2-doc-classifier
+            mountPath: /app/data
+      volumes:
+        - name: aws-credentials
+          secret:
+            secretName: aws-credentials
+        - name: ls-api-token
+          secret:
+            secretName: ls-api-token
+        - name: msebr2-doc-classifier
+          persistentVolumeClaim:
+            claimName: msebr2-doc-classifier

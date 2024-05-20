@@ -49,13 +49,14 @@ logger.setLevel(logging.DEBUG)
 # ~~~ Configuration ~~~
 @dataclass
 class Config:
-    data_dir: str = "/media/olivier/Media/DATASETS/cropped"
+    data_dir: str = "/Users/jeff/Dev/MSE_Projects/PI/monorepo/doc-analyzer/model-experiment/data"
     batch_size: int = 16
     num_workers: int = 4
     shuffle: bool = True
     experiment_name: str = "doc-classifier-v1.0"
     logger_uri: str = "file:./mlruns"
     max_epochs: int = 5
+    limit_train_batches: int = 100
 
 
 def main(config: Config):
