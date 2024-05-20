@@ -34,3 +34,9 @@ retentative en désactivant minio et postgres, sachant que ça limitera les fonc
 retentative avec `clusterDomain: kube.isc.heia-fr.ch`, mais toujours ` Service is ready:Load balancer is being provisioned `.
 
 retentative avec `service.type: ClusterIP`, `ingress.enabled: true` et `ingress.hostname: mlflow.kube.isc.heia-fr.ch`.
+
+18:44
+
+J'ai enfin trouvé une solution :
+- retirer de schema.json la mention
+- tout télécharger sur ma machine et ne pas utiliser directement le repo de binami

@@ -403,16 +403,6 @@
                                     }
                                 }
                             }
-                        },
-                        "seccompProfile": {
-                            "type": "object",
-                            "properties": {
-                                "type": {
-                                    "type": "string",
-                                    "description": "Set container's Security Context seccomp profile",
-                                    "default": "RuntimeDefault"
-                                }
-                            }
                         }
                     }
                 },
@@ -1402,16 +1392,6 @@
                                     }
                                 }
                             }
-                        },
-                        "seccompProfile": {
-                            "type": "object",
-                            "properties": {
-                                "type": {
-                                    "type": "string",
-                                    "description": "Set Run container's Security Context seccomp profile",
-                                    "default": "RuntimeDefault"
-                                }
-                            }
                         }
                     }
                 },
@@ -1875,16 +1855,6 @@
                                     "items": {
                                         "type": "string"
                                     }
-                                }
-                            }
-                        },
-                        "seccompProfile": {
-                            "type": "object",
-                            "properties": {
-                                "type": {
-                                    "type": "string",
-                                    "description": "Set container's Security Context seccomp profile",
-                                    "default": "RuntimeDefault"
                                 }
                             }
                         }

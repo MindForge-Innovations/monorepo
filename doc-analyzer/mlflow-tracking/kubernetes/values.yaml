@@ -247,8 +247,8 @@ tracking:
     allowPrivilegeEscalation: false
     capabilities:
       drop: ["ALL"]
-    # seccompProfile:
-    #   type: ""
+    seccompProfile:
+    #  type: "None"
   ## Basic authentication
   ## @param tracking.auth.enabled Enable basic authentication
   ## @param tracking.auth.username Admin username
@@ -259,7 +259,7 @@ tracking:
   ## @param tracking.auth.extraOverrides Add extra settings to the basic_auth.ini file
   ## @param tracking.auth.overridesConfigMap Name of a ConfigMap containing overrides to the basic_auth.ini file
   auth:
-    enabled: false
+    enabled: true
     username: user
     password: ""
     existingSecret: ""
@@ -552,7 +552,7 @@ tracking:
     pathType: ImplementationSpecific
     ## @param tracking.ingress.hostname Default host for the ingress record
     ##
-    hostname: mlflow.kube.isc.heia-fr.ch
+    hostname: ""
     ## @param tracking.ingress.ingressClassName IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
     ## This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
     ## ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
@@ -965,8 +965,8 @@ run:
     allowPrivilegeEscalation: false
     capabilities:
       drop: ["ALL"]
-    # seccompProfile:
-    #   type: ""
+    seccompProfile:
+    #  type: "None"
   ## @param run.lifecycleHooks for the run container(s) to automate configuration before or after startup
   ##
   lifecycleHooks: {}
@@ -1339,8 +1339,8 @@ waitContainer:
     allowPrivilegeEscalation: false
     capabilities:
       drop: ["ALL"]
-    # seccompProfile:
-    #   type: ""
+    seccompProfile:
+    #  type: "None"
 ## @section PostgreSQL chart configuration
 ## ref: https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml
 ## @param postgresql.enabled Switch to enable or disable the PostgreSQL helm chart
@@ -1352,7 +1352,7 @@ waitContainer:
 ## @param postgresql.primary.service.ports.postgresql PostgreSQL service port
 ##
 postgresql:
-  enabled: false
+  enabled: true
   auth:
     username: bn_mlflow
     password: ""
@@ -1399,7 +1399,7 @@ minio:
   ## @param minio.enabled Enable/disable MinIO&reg; chart installation
   ## to be used as an objstore for Mlflow
   ##
-  enabled: false
+  enabled: true
   ## MinIO&reg; authentication parameters
   ##
   auth:
