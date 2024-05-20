@@ -1,4 +1,12 @@
 omegaconf
 pytorch-lightning
+lightning
 colorlog
 rootutils
+boto3
+python-dotenv
+label-studio-sdk
+tqdm
+seaborn
+torchvision
+mlflow
