@@ -1,0 +1,25 @@
+# MlFlow Tracking Server
+
+This folder provide the files to deploy a MlFlow Tracking Server on Kubernetes with the Helm packet manager.
+
+This deplioyment is heavely based on the helm chart provided by [Bitnami](https://github.com/bitnami/charts/tree/main/bitnami/mlflow/). We only had to adapt some files to make this chart working on a cluster that has no support for seccomp.
+
+## Adaptations
+
+First, it was necessary to add the uncompressed dependencies (Posgresql and Minio) in the `helm/charts` directory. In each dependency, we've disabled seccomp by commenting all occurences of the key `seccompProfile.type` in `values.yaml` file.  
+We've made the same in the main `values.yaml` file. We then realized that the `json.values.schema.json` file prevented us from completely disabling seccomp by providing a default vaule for the key `seccompProfile.type`. So we just removed all rules concerning this key in this last file.
+
+## Install script
+
+We provide a script to simplify the installation. Adapt the values of the variables on the top of file as needed.  
+
+Before the first install, create a dedicated namespace in your cluster, and provide its name as value of the `KUBE_NAMESPACE` variable. Choose also a non used sub-domain name on your cluster. This will be used for the `ingress` service, that make the server UI accessible on the internet.  
+
+
+### Usage
+- First install : `./install.sh install`
+- Upgrade : `./install.sh upgrade`
+
+To see the other options, juste type `./install.sh`.
+
+If you don't remember your basic auth username and password, the command `./install.sh status` will provide them.
