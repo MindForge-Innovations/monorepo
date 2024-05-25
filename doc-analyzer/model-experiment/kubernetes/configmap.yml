@@ -3,10 +3,10 @@ kind: ConfigMap
 metadata:
   name: doc-classifier-env
 data:
-  AWS_CONFIG_FILE: secrets/.aws/config
+  AWS_CONFIG_FILE: /secrets/.aws/config
   LS_TARGET_BUCKET: mse-pi-lstudio-target
   LS_SOURCE_BUCKET: mse-pi-lstudio-source
   DATASET_BUCKET: mse-pi-dataset
-  LS_TOKEN_PATH: secrets/.lstudio/api-token
+  LS_TOKEN_PATH: /secrets/.lstudio/api-token
   LS_URL: https://mse-pi.pasche-net.ch/label-studio/
   LS_PROJECT_ID: "1"

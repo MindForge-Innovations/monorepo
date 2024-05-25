@@ -1,25 +1,19 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: br2-classifier-train
+  name: br2-classifier-downloader
   labels:
-    app: classifier-train
+    app: classifier-downloader
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: classifier-train
   template:
     metadata:
       labels:
-        app: classifier-train
+        app: classifier-downloader
     spec:
       containers:
-      - name: classifier-train
+      - name: classifier-downloader
+        image: ghcr.io/superjeffcplusplus/downloader:latest
         imagePullPolicy: IfNotPresent
-        image: downloader
-        ports:
-          - containerPort: 80
         envFrom:
           - configMapRef:
               name: doc-classifier-env
@@ -30,6 +24,9 @@ spec:
             mountPath: /secrets/.lstudio
           - name: msebr2-doc-classifier
             mountPath: /app/data
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: ghcr-secret
       volumes:
         - name: aws-credentials
           secret:
@@ -40,3 +37,5 @@ spec:
         - name: msebr2-doc-classifier
           persistentVolumeClaim:
             claimName: msebr2-doc-classifier
+  backoffLimit: 4
+    

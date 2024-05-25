@@ -7,5 +7,5 @@ from src.dataloader.downloader import download_titles_and_content
 
 load_dotenv()
 
-download_titles_and_content()
+download_titles_and_content(books=["Grotius-DG"], categories=["page_with_title"])
 

@@ -8,6 +8,7 @@ from label_studio_sdk import Client as LSClient
 import zipfile
 
 from src.dataloader.config import Config
+from typing import List
 
 def setup_directory():
     if not os.path.exists("logs"):
@@ -22,7 +23,7 @@ def setup_directory():
         os.makedirs("data")
         
 
-def setup_downloader():
+def setup_downloader() -> tuple[boto3.resource, LSClient, Config]:
 
     config = Config()
 
@@ -114,18 +115,14 @@ def download_coco():
         if not os.path.exists(f"data/{obj}"):
             logging.error(f"Failed to download {obj}")
 
-def download_titles_and_content():
+def download_titles_and_content(books: List[str] = ["Grotius-DG", "Puf-DNG", "Vattel-DG"], categories: List[str] = ["page_with_content", "page_with_title"]) -> None:
     s3Client, _, config = setup_downloader()
-
-    books = ["Grotius-DG", "Puf-DNG", "Vattel-DG"]
-    categories = ["page_with_content", "page_with_title"]
 
     try:
         images = s3Client.Bucket(config.lsSourceBucket)
     except ClientError as e:
         logging.error(e)
         exit(1)
-
     for book in books:
         if not os.path.exists(f"data/{book}"):
             os.makedirs(f"data/{book}")
@@ -133,8 +130,8 @@ def download_titles_and_content():
             if not os.path.exists(f"data/{book}/{category}"):
                 os.makedirs(f"data/{book}/{category}")
             # get the list of objects in the bucket
-            objects = images.objects.filter(Prefix=f"{book}/{category}")
-            logging.info(f"Downloading {len(objects)} files from {config.lsSourceBucket}")
+            objects = images.objects.filter(Prefix=f"{book}/{category}").all()
+            logging.info(f"Downloading {len(list(objects))} files from {config.lsSourceBucket}")
             for obj in tqdm(objects):
                 # save the object to the data directory preserving the directory structure
                 images.download_file(obj.key, f"data/{obj.key}")

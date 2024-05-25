@@ -1,0 +1,7 @@
+omegaconf
+colorlog
+rootutils
+boto3
+python-dotenv
+label-studio-sdk
+tqdm

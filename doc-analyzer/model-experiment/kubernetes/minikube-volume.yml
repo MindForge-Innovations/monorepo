@@ -1,0 +1,11 @@
+# For use with minikube
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: msebr2-doc-classifier
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
