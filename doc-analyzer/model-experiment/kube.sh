@@ -4,8 +4,7 @@ KUBE_NAMESPACE="br2-doc-classifier"
 AWS_SECRET_NAME="aws-credentials"
 LS_SECRET_NAME="ls-api-token"
 REGISTRY=ghcr.io
-GIT_USER=$GIT_USER
-GIT_REG_TOKEN=$GIT_REG_TOKEN
+DOCKER_IMG_TAG=${DOCKER_IMG_TAG:-v0.2}
 
 # if ! kubectl get namespace $KUBE_NAMESPACE 2>/dev/null; then
 #     echo "Create namespace $KUBE_NAMESPACE before executing this script"
@@ -49,9 +48,15 @@ function downloader_run {
 }
 
 function push_docker_images {
-    docker build -t downloader:latest -f docker/downloader/Dockerfile .
-    docker tag downloader:latest $REGISTRY/$REGISTRY_USER/downloader:latest
-    docker push $REGISTRY/$REGISTRY_USER/downloader:latest
+    echo "Docker image tag: $DOCKER_IMG_TAG"
+    echo "Registry: $REGISTRY"
+    echo Registry User: $GIT_USER
+    echo $REGISTRY/$GIT_USER/downloader:"$DOCKER_IMG_TAG"
+    docker build -t "downloader:$DOCKER_IMG_TAG" -f docker/downloader/Dockerfile .
+    docker tag "downloader:$DOCKER_IMG_TAG" "$REGISTRY"/"$GIT_USER"/downloader:"$DOCKER_IMG_TAG"
+    docker push "$REGISTRY/$GIT_USER/downloader:$DOCKER_IMG_TAG"
+    docker tag "downloader:$DOCKER_IMG_TAG" "$REGISTRY"/"$GIT_USER"/downloader:latest
+    docker push "$REGISTRY/$GIT_USER/downloader:latest"
 }
 
 function teardown {
@@ -72,6 +77,13 @@ elif [ "$1" == "teardown" ]; then
     teardown
 elif [ "$1" == "docker:push" ]; then
     push_docker_images
+elif [ "$1" == "docker:login" ]; then
+    read -r -p "GitHub Username: " GITHUB_USERNAME
+    read -r -s -p "GitHub Password: " GITHUB_PASSWORD
+    echo "$GITHUB_PASSWORD" | docker login ghcr.io -u "$GITHUB_USERNAME" --password-stdin
+    export GIT_USER=$GITHUB_USERNAME
+    export GIT_REG_TOKEN=$GITHUB_PASSWORD
+    echo "To make other commands work, please ensure that GIT_USER and GIT_REG_TOKEN environment variables are set."
 else
     echo "Usage: $0 [status|setup]"
 fi
