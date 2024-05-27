@@ -44,6 +44,7 @@ formatter = colorlog.ColoredFormatter(
 handler.setFormatter(formatter)
 logger = colorlog.getLogger(__name__)
 logger.addHandler(handler)
+# logger = logging.getLogger("mlflow")
 logger.setLevel(logging.DEBUG)
 
 # ~~~ Configuration ~~~
@@ -61,17 +62,7 @@ logger.setLevel(logging.DEBUG)
 
 def main(config: TrainConfig, mlflow_uri: MLFlowUri):
     logger.info(f"Configuration: {config}")
-
-    # ~~~ Data Preparation ~~~
-    data_module = ClassificationDataModule(
-        config.data_dir, config.batch_size, config.num_workers, config.shuffle
-    )
-    data_module.setup()
-    logger.info("Data chargée avec succès")
-
-    # ~~~ Model Initialization ~~~
-    model = DocumentClassifier()
-
+    
     # ~~~ Logger ~~~
     mlf_logger = MLFlowLogger(
         experiment_name=config.experiment_name,
@@ -79,9 +70,25 @@ def main(config: TrainConfig, mlflow_uri: MLFlowUri):
         log_model=True,
     )
 
+    mlf_logger.log_hyperparams(config.__dict__)
+
+    # ~~~ Data Preparation ~~~
+    data_module = ClassificationDataModule(
+        config.data_dir, config.batch_size, config.num_workers, config.shuffle
+    )
+
+    data_module.set_logger(logger)
+    data_module.set_mlflow_logger(mlf_logger)
+
+    data_module.setup()
+    logger.info("Data chargée avec succès")
+
+    # ~~~ Model Initialization ~~~
+    model = DocumentClassifier()
+
     # ~~~ Training ~~~
     trainer = Trainer(
-        limit_train_batches=100,
+        limit_train_batches=config.limit_train_batches,
         max_epochs=config.max_epochs,
         logger=mlf_logger,
     )

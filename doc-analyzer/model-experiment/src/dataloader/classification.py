@@ -90,6 +90,12 @@ class ClassificationDataModule(L.LightningDataModule):
             [transforms.Resize((240, 240)), transforms.ToTensor()]
         )
 
+    def set_logger(self, logger):
+        self.logger = logger
+
+    def set_mlflow_logger(self, mlflow_logger):
+        self.mlflow_logger = mlflow_logger
+
     def setup(self, stage=None):
         """Setup data loaders. Stage can be {fit, validate, test, predict}."""
 
@@ -104,6 +110,9 @@ class ClassificationDataModule(L.LightningDataModule):
             raise ValueError(
                 "The dataset is empty. Please check the data directory."
             )
+        
+        self.logger.info(f"Dataset loaded with {len(dataset)} samples.")
+        # self.mlflow_logger.log_param("dataset_size",len(dataset))
 
         #  ~~~ Split Dataset ~~~
         train_size = int(0.8 * len(dataset))
@@ -112,12 +121,17 @@ class ClassificationDataModule(L.LightningDataModule):
             dataset, [train_size, test_size]
         )
 
+
         train_size = int(0.8 * len(temp_dataset))
         val_size = len(temp_dataset) - train_size
         self.dataset_train, self.dataset_val = random_split(
             temp_dataset, [train_size, val_size]
         )
 
+        self.logger.info(f"Train size: {train_size}, Test size: {test_size}")
+        # self.mlflow_logger.log_param("train_size",train_size)
+        # self.mlflow_logger.log_param("test_size",test_size)
+        self.mlflow_logger.log_hyperparams({"train_size":train_size,"test_size":test_size})
         if len(self.dataset_train) == 0:
             raise ValueError(
                 "The training dataset is empty. Please check the data splitting."
@@ -159,8 +173,10 @@ class ClassificationDataModule(L.LightningDataModule):
         """Plot the label distribution of the training dataset."""
         train_labels = [label for _, label in self.dataset_train]
         label_counts = dict(Counter(train_labels))
-        plt.bar(label_counts.keys(), label_counts.values())
-        plt.xlabel("Label")
-        plt.ylabel("Count")
-        plt.title("Label Distribution in Training Dataset")
+        fig, ax = plt.subplots()
+        ax.bar(label_counts.keys(), label_counts.values())
+        ax.set_xlabel("Label")
+        ax.set_ylabel("Count")
+        ax.set_title("Label Distribution in Training Dataset")
+        #self.mlflow_logger.log_figure(fig, "label_distribution.png")
         plt.show()
