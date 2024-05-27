@@ -1,0 +1,9 @@
+lightning
+omegaconf
+colorlog
+rootutils
+boto3
+python-dotenv
+tqdm
+seaborn
+mlflow

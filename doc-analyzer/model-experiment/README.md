@@ -1,5 +1,16 @@
 
 # Object Detection Project
+
+## Deployment
+
+## Python local setup
+1. Create a python virtual environment with `pyhton3 -m venv .venv` and activate it.
+2. The requirements.txt file was generated with `pip-tools` (` pip install pip-tools`)
+ - Use the command `pip-compile requirements.in` to regenerate the `requirements.txt` file with the latest version available for the project-required python packages.
+
+
+
+
 ```
 object_detection_project/
 │

@@ -10,6 +10,7 @@ import rootutils
 
 # ~~~ Project imports ~~~
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
+
 # ------------------------------------------------------------------------------------ #
 # the setup_root above is equivalent to:
 # - adding project root dir to PYTHONPATH
@@ -27,7 +28,7 @@ from src.dataloader.classification import ClassificationDataModule
 # ~~~ Configuration du logger ~~~
 handler = colorlog.StreamHandler()
 formatter = colorlog.ColoredFormatter(
-    "%(log_color)s%(levelname)-8s%(reset)s %(blue)s%(message)s",
+    "%(log_color)s%(levelname)-8s%(reset)s %(blue)s%(message)s[%(filename)s]",
     datefmt=None,
     reset=True,
     log_colors={
@@ -45,16 +46,15 @@ logger = colorlog.getLogger(__name__)
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
-
 # ~~~ Configuration ~~~
 @dataclass
 class Config:
-    data_dir: str = "/Users/jeff/Dev/MSE_Projects/PI/monorepo/doc-analyzer/model-experiment/data"
+    data_dir: str = "/app/data"
     batch_size: int = 16
     num_workers: int = 4
     shuffle: bool = True
     experiment_name: str = "doc-classifier-v1.0"
-    logger_uri: str = "file:./mlruns"
+    logger_uri: str = "http://user:28rCps1l6U@mlflow-tracking-tracking.br2-doc-analyzer-0.svc.cluster.local"
     max_epochs: int = 5
     limit_train_batches: int = 100
 

@@ -1,6 +1,8 @@
 # OS sepcific
 .DS_Store
 
+.vscode
+
 # Secret files
 secrets
 
