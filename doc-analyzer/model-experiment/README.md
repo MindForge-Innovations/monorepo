@@ -16,6 +16,8 @@ secrets
 ├── github
 └── mlflow-credentials.yml
 ```
+Files content :
+
 - `.aws/config`:
 ```
 [default]
@@ -23,7 +25,26 @@ region=<region>
 aws_access_key_id=YOUR_ACCESS_KEY_ID
 aws_secret_access_key=YOUR_SECRET_ACCESS_KEY
 ```
-
+- `.lstudio/api-token`
+```
+<TOKEN>
+```
+- `github`
+```
+GIT_REG_TOKEN=<secret_token>
+GIT_USER=<username>
+```
+- `mlflow-credentials.yml`  : See `doc-analyzer/mlflow-tracking/README.md` the values for `username` and `password`.
+```yml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mlflow-basic-auth
+type: kubernetes.io/basic-auth
+stringData:
+  username: <username> # required field for kubernetes.io/basic-auth
+  password: <password> # required field for kubernetes.io/basic-auth
+```
 
 ## Python local setup
 1. Create a python virtual environment with `pyhton3 -m venv .venv` and activate it.
