@@ -1,6 +1,5 @@
 # ~~~ Imports ~~~
 from dataclasses import dataclass
-from omegaconf import DictConfig
 
 from lightning.pytorch import Trainer
 from lightning.pytorch.loggers import MLFlowLogger
@@ -24,6 +23,7 @@ rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
 # ------------------------------------------------------------------------------------ #
 from src.models.classification import DocumentClassifier
 from src.dataloader.classification import ClassificationDataModule
+from src.scripts.trainConfig import TrainConfig, MLFlowUri
 
 # ~~~ Configuration du logger ~~~
 handler = colorlog.StreamHandler()
@@ -47,19 +47,19 @@ logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
 # ~~~ Configuration ~~~
-@dataclass
-class Config:
-    data_dir: str = "/app/data"
-    batch_size: int = 16
-    num_workers: int = 4
-    shuffle: bool = True
-    experiment_name: str = "doc-classifier-v1.0"
-    logger_uri: str = "http://user:28rCps1l6U@mlflow-tracking-tracking.br2-doc-analyzer-0.svc.cluster.local"
-    max_epochs: int = 5
-    limit_train_batches: int = 100
+# @dataclass
+# class Config:
+#     data_dir: str = "/app/data"
+#     batch_size: int = 16
+#     num_workers: int = 4
+#     shuffle: bool = True
+#     experiment_name: str = "doc-classifier-v1.0"
+#     logger_uri: str = "http://user:28rCps1l6U@mlflow-tracking-tracking.br2-doc-analyzer-0.svc.cluster.local"
+#     max_epochs: int = 5
+#     limit_train_batches: int = 100
 
 
-def main(config: Config):
+def main(config: TrainConfig, mlflow_uri: MLFlowUri):
     logger.info(f"Configuration: {config}")
 
     # ~~~ Data Preparation ~~~
@@ -75,7 +75,7 @@ def main(config: Config):
     # ~~~ Logger ~~~
     mlf_logger = MLFlowLogger(
         experiment_name=config.experiment_name,
-        tracking_uri=config.logger_uri,
+        tracking_uri=mlflow_uri.logger_uri,
         log_model=True,
     )
 
@@ -97,5 +97,10 @@ def main(config: Config):
 if __name__ == "__main__":
 
     logger.info("Welcome to the object detection training script.")
-    config = Config()
-    main(config)
+    try:
+        config = TrainConfig()
+        mlflow_uri = MLFlowUri()
+        main(config, mlflow_uri)
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        raise e

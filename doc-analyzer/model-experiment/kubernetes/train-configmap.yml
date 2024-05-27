@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: doc-classifier-training-env
+data:
+  DATA_DIR: /app/data
+  EXPERIMENT_NAME: doc-classifier-v1.0
+  MLFLOW_TRACKING_URI: mlflow-tracking.br2-mlflow.svc.cluster.local

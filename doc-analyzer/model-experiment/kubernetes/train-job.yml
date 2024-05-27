@@ -14,9 +14,20 @@ spec:
       - name: classifier-train
         image: ghcr.io/superjeffcplusplus/trainer:latest
         imagePullPolicy: Always
+        env:
+          - name: MLFLOW_USER
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-basic-auth
+                key: username
+          - name: MLFLOW_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-basic-auth
+                key: password
         envFrom:
           - configMapRef:
-              name: doc-classifier-env
+              name: doc-classifier-training-env
         volumeMounts:
           - name: aws-credentials
             mountPath: /secrets/.aws

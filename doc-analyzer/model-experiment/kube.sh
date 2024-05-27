@@ -5,7 +5,7 @@ AWS_SECRET_NAME="aws-credentials"
 LS_SECRET_NAME="ls-api-token"
 REGISTRY=ghcr.io
 DOCKER_IMG_TAG=${DOCKER_IMG_TAG:-v0.2}
-DOCKER_TRAIN_IMG_TAG=${DOCKER_TRAIN_IMG_TAG:-v0.5.6}
+DOCKER_TRAIN_IMG_TAG=${DOCKER_TRAIN_IMG_TAG:-v0.5.7}
 # if ! kubectl get namespace $KUBE_NAMESPACE 2>/dev/null; then
 #     echo "Create namespace $KUBE_NAMESPACE before executing this script"
 #     exit 1
@@ -22,8 +22,9 @@ function setup {
         --from-file=secrets/.aws/config
     kubectl create secret generic $LS_SECRET_NAME  \
         --from-file=secrets/.lstudio/api-token
-    kubectl create  \
-        -f kubernetes/configmap.yml
+    kubectl create -f secrets/mlflow-credentials.yml
+    kubectl create -f kubernetes/configmap.yml
+    kubectl create -f kubernetes/train-configmap.yml
     if [[ $(kubectl config current-context) == "minikube" ]]; then
         kubectl apply -f kubernetes/minikube-volume.yml
     else
@@ -47,7 +48,7 @@ function downloader_run {
     kubectl apply -f kubernetes/downloader-job.yml
 }
 
-push_docker_img() {
+function push_docker_img() {
     local image_name="$1"
     local docker_img_tag="$2"
     echo "Docker image tag: $docker_img_tag"

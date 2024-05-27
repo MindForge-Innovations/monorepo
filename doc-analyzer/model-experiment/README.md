@@ -3,6 +3,28 @@
 
 ## Deployment
 
+### Secrets
+
+You must create a `secrets` directory with the following structure :
+
+```
+secrets
+├── .aws
+│   └── config
+├── .lstudio
+│   └── api-token
+├── github
+└── mlflow-credentials.yml
+```
+- `.aws/config`:
+```
+[default]
+region=<region>
+aws_access_key_id=YOUR_ACCESS_KEY_ID
+aws_secret_access_key=YOUR_SECRET_ACCESS_KEY
+```
+
+
 ## Python local setup
 1. Create a python virtual environment with `pyhton3 -m venv .venv` and activate it.
 2. The requirements.txt file was generated with `pip-tools` (` pip install pip-tools`)
