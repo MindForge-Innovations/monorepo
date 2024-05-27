@@ -4,4 +4,4 @@ COPY ./src/ /app/src/
 COPY ./requirements.txt /app/
 COPY ./.project-root /app/
 WORKDIR /app
-CMD ["python", "src/scripts/test.py"]
+CMD ["python", "src/scripts/dataset_downloader.py"]
