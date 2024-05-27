@@ -13,7 +13,7 @@ spec:
       containers:
       - name: classifier-downloader
         image: ghcr.io/superjeffcplusplus/downloader:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         envFrom:
           - configMapRef:
               name: doc-classifier-env
@@ -38,4 +38,3 @@ spec:
           persistentVolumeClaim:
             claimName: msebr2-doc-classifier
   backoffLimit: 4
-    
