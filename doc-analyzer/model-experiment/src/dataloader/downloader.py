@@ -123,6 +123,7 @@ def download_titles_and_content(books: List[str] = ["Grotius-DG", "Puf-DNG", "Va
     except ClientError as e:
         logging.error(e)
         exit(1)
+    downloaded = 0
     for book in books:
         if not os.path.exists(f"data/{book}"):
             os.makedirs(f"data/{book}")
@@ -134,7 +135,10 @@ def download_titles_and_content(books: List[str] = ["Grotius-DG", "Puf-DNG", "Va
             logging.info(f"Downloading {len(list(objects))} files from {config.lsSourceBucket}")
             for obj in tqdm(objects):
                 # save the object to the data directory preserving the directory structure
-                images.download_file(obj.key, f"data/{obj.key}")
+                if not os.path.exists(f"data/{obj.key}"):
+                    images.download_file(obj.key, f"data/{obj.key}")
+                    downloaded += 1
+    logging.info(f"Downloaded {downloaded} files from {config.lsSourceBucket}")
 
 
         
