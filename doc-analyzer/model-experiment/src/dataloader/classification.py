@@ -157,7 +157,8 @@ class ClassificationDataModule(L.LightningDataModule):
 
     def plot_label_distribution(self):
         """Plot the label distribution of the training dataset."""
-        train_labels = [label for _, label in self.dataset_train]
+        # Convert label tensors to integers
+        train_labels = [int(label) for _, label in self.dataset_train]
         label_counts = dict(Counter(train_labels))
         plt.bar(label_counts.keys(), label_counts.values())
         plt.xlabel("Label")
