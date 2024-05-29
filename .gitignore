@@ -12,6 +12,9 @@ data
 logs
 *.log
 *.zip
+*.pt
+*.mar
+*.pth
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
