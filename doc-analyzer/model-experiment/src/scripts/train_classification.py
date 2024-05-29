@@ -1,6 +1,3 @@
-# ~~~ Imports ~~~
-from dataclasses import dataclass
-
 from lightning.pytorch import Trainer
 from lightning.pytorch.loggers import MLFlowLogger
 import colorlog
@@ -47,17 +44,6 @@ logger.addHandler(handler)
 # logger = logging.getLogger("mlflow")
 logger.setLevel(logging.DEBUG)
 
-# ~~~ Configuration ~~~
-# @dataclass
-# class Config:
-#     data_dir: str = "/app/data"
-#     batch_size: int = 16
-#     num_workers: int = 4
-#     shuffle: bool = True
-#     experiment_name: str = "doc-classifier-v1.0"
-#     logger_uri: str = "http://user:28rCps1l6U@mlflow-tracking-tracking.br2-doc-analyzer-0.svc.cluster.local"
-#     max_epochs: int = 5
-#     limit_train_batches: int = 100
 
 
 def main(config: TrainConfig, mlflow_uri: MLFlowUri):
