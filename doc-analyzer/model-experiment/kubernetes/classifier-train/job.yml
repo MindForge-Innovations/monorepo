@@ -1,0 +1,62 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: br2-classifier-train
+  labels:
+    app: br2-classifier-train
+spec:
+  template:
+    metadata:
+      labels:
+        app: br2-classifier-train
+    spec:
+      containers:
+      - name: classifier-train
+        image: ghcr.io/superjeffcplusplus/classifier-train:v0.6.0
+        imagePullPolicy: Always
+        env:
+          - name: MLFLOW_USER
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-basic-auth
+                key: username
+          - name: MLFLOW_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-basic-auth
+                key: password
+        envFrom:
+          - configMapRef:
+              name: doc-classifier-training-env
+        volumeMounts:
+          - name: aws-credentials
+            mountPath: /secrets/.aws
+          - name: ls-api-token
+            mountPath: /secrets/.lstudio
+          - name: msebr2-doc-classifier
+            mountPath: /app/data
+          - name: dshm
+            mountPath: /dev/shm
+        resources:
+          requests:
+            memory: "16Gi"
+          limits:
+            memory: "16Gi"
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: ghcr-secret
+      volumes:
+        - name: aws-credentials
+          secret:
+            secretName: aws-credentials
+        - name: ls-api-token
+          secret:
+            secretName: ls-api-token
+        - name: msebr2-doc-classifier
+          persistentVolumeClaim:
+            claimName: msebr2-doc-classifier
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Gi
+  backoffLimit: 4

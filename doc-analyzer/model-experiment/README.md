@@ -1,8 +1,23 @@
 
 # Object Detection Project
 
+Ce qui manque:
+- Création de releases sur GitHub
+- CD/CI sur GitHub, automatisation
+- 
+
 ## Deployment
 
+### Steps
+1. Create all secrets file needed (see the `secrets` section of this README)
+2. Login into the GitHub docker regitry
+   `docker login`
+3. `./kube.sh setup`
+4. `./kube.sh download:push`
+5. `./kube.sh train:push`
+6. `./kube.sh download:run`
+7. `./kube.sh train:run`
+8. 
 ### Secrets
 
 You must create a `secrets` directory with the following structure :
