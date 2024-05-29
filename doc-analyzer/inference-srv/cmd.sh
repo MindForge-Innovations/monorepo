@@ -1,3 +1,5 @@
+# Here are some commands that can be useful but not documented in the README.md file
+
 curl -X POST "http://doc-classifier.kube.isc.heia-fr.ch/predict/" -F "file=@data/Grotius_Dg-012.png"
 
 curl -X POST "http://localhost:8080/predictions/document_classifier" -T data/Grotius_Dg-012.png

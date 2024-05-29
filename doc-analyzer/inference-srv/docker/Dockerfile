@@ -1,8 +1,7 @@
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.11
+RUN pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+RUN pip install Pillow
 WORKDIR /app
-COPY ./requirements.txt /app/requirements.txt
-RUN pip install -r requirements.txt
-RUN pip install colorlog
 COPY ./src/ /app/
 COPY ./src/model.pt /app/model.pt
 
