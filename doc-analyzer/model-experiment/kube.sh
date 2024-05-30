@@ -10,6 +10,9 @@ DOCKER_TRAIN_IMG_TAG=$(grep '^TRAIN=' .version | cut -d'=' -f2)
 DOCKER_TRAIN_IMG_NAME=classifier-train
 K8S_DIR="kubernetes"
 
+_TRAIN_JOB_HAS_CHANGED=false
+_DWNLD_JOB_HAS_CHANGED=false
+
 if [[ -z "$GIT_USER" || -z "$GIT_REG_TOKEN" ]]; then
     source secrets/github
     if [[ -z "$GIT_USER" || -z "$GIT_REG_TOKEN" ]]; then
@@ -30,19 +33,19 @@ function check_version {
     local input_yaml="$K8S_DIR/$2/job.yml"
     local job_yml_version=$(get_current_verion "$image_name" "$input_yaml")
     if [[ "$job_yml_version" != "$new_version" ]]; then
-        echo "The version number has changed :" 
+        echo "The image $image_name version number has changed :" 
         printf "\t-Version in job.yml : %s\n" "$job_yml_version"
         printf "\t-Version in .version file: %s\n" "$new_version"
         read -p "Do you want to update the job with the new version? (y/n) " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             # Update the image key with the new version number using the image name variable
-            sed "s|\(image: $image_name:\).*|\1$new_version|" $input_yaml > $input_yaml
+            sed "s|\(image: $image_name:\).*|\1$new_version|" "$input_yaml" > "$input_yaml.tmp"
+            mv "$input_yaml.tmp" "$input_yaml"
             echo "Updated job YAML with version $new_version"
         else
             echo "Update canceled."
         fi
-        exit 0
     fi
 }
 
@@ -99,6 +102,7 @@ function setup {
     kubectl create -f secrets/mlflow-credentials.yml
     kubectl create -f $K8S_DIR/shared/configmap.yml
     kubectl create -f $K8S_DIR/$DOCKER_TRAIN_IMG_NAME/configmap.yml
+    kubectl create configmap br2-classifier-version --from-env-file=.version
     if [[ $(kubectl config current-context) == "minikube" ]]; then
         kubectl apply -f $K8S_DIR/shared/minikube-volume.yml
     else
@@ -126,6 +130,7 @@ function check_job_status {
 }
 
 function job_run {
+    kubectl create configmap br2-classifier-version --from-env-file=.version --dry-run=client -o yaml | kubectl apply -f -
     if ! kubectl apply -f $K8S_DIR/$1/job.yml 
     then
         echo "Try to delete the existing job with ./kube.sh <job>:delete and try again."
@@ -224,4 +229,3 @@ while true; do
 done
 
 echo "Current namespace is $(kubectl config view --minify --output 'jsonpath={..namespace}')"
-

@@ -10,8 +10,7 @@ Ce qui manque:
 
 ### Steps
 1. Create all secrets file needed (see the `secrets` section of this README)
-2. Login into the GitHub docker regitry
-   `docker login`
+2. Login into the GitHub docker regitry : `docker login`
 3. `./kube.sh setup`
 4. `./kube.sh download:push`
 5. `./kube.sh train:push`

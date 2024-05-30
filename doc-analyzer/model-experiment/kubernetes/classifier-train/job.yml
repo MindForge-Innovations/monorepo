@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
       - name: classifier-train
-        image: ghcr.io/superjeffcplusplus/classifier-train:v0.6.0
+        image: ghcr.io/superjeffcplusplus/classifier-train:v0.6.14
         imagePullPolicy: Always
         env:
           - name: MLFLOW_USER
@@ -25,9 +25,21 @@ spec:
               secretKeyRef:
                 name: mlflow-basic-auth
                 key: password
+          - name: MLFLOW_TRACKING_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-basic-auth
+                key: username
+          - name: MLFLOW_TRACKING_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mlflow-basic-auth
+                key: password
         envFrom:
           - configMapRef:
               name: doc-classifier-training-env
+          - configMapRef:
+              name: br2-classifier-version
         volumeMounts:
           - name: aws-credentials
             mountPath: /secrets/.aws

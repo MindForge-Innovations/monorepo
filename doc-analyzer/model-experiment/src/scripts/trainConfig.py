@@ -4,6 +4,7 @@ import os
 class TrainConfig:
 
     def __init__(self):
+        self.docker_image_version = os.getenv("TRAIN")
         self.data_dir = os.getenv("DATA_DIR")
         self.batch_size = 16
         self.num_workers = 4
@@ -21,7 +22,6 @@ class MLFlowUri:
 
         if os.getenv("MLFLOW_TRACKING_URI") is None or os.getenv("MLFLOW_USER") is None or os.getenv("MLFLOW_PASSWORD") is None:
             raise Exception("Missing environment variables")
-
-        base_logger_uri = os.getenv("MLFLOW_TRACKING_URI")
-        basic_auth = os.getenv("MLFLOW_USER") + ":" + os.getenv("MLFLOW_PASSWORD")
-        self.logger_uri = f"http://{basic_auth}@{base_logger_uri}"
+        # base_logger_uri = os.getenv("MLFLOW_TRACKING_URI")
+        # basic_auth = os.getenv("MLFLOW_USER") + ":" + os.getenv("MLFLOW_PASSWORD")
+        self.logger_uri = f"http://{os.getenv('MLFLOW_TRACKING_URI')}"

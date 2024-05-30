@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
       - name: classifier-downloader
-        image: ghcr.io/superjeffcplusplus/classifier-downloader:v0.2.0
+        image: ghcr.io/superjeffcplusplus/classifier-downloader:v0.2.1
         imagePullPolicy: Always
         envFrom:
           - configMapRef:
