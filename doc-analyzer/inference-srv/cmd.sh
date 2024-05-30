@@ -14,3 +14,4 @@ torch-model-archiver --model-name document_classifier \
                      --handler image_classifier \
                      --export-path . \
                      --extra-files src/config/model-config.json
+docker run -p 8080:80 -e MLFLOW_TRACKING_URI=$MLFLOW_TRACKING_URI -e MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -e MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD document-classifier:test

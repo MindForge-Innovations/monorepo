@@ -1,8 +1,9 @@
 #!/bin/bash
 
-KUBE_NAMESPACE="br2-doc-classifier-1"
-DOCKER_IMG_TAG=${DOCKER_IMG_TAG:-v0.3}
-INFERENCE_DOCKER_IMG="superjeffcplusplus/inference-service"
+KUBE_NAMESPACE="mse-doc-classifier"
+DOCKER_IMG_TAG=${DOCKER_IMG_TAG:-v0.9.2}
+INFERENCE_DOCKER_IMG="superjeffcplusplus/classifier-inference"
+INFERENCE_DOCKER_IMG_INIT="superjeffcplusplus/classifier-inference-init"
 
 kubectl config set-context --current --namespace="$KUBE_NAMESPACE"
 
@@ -22,6 +23,14 @@ function docker_push {
 
     docker tag $INFERENCE_DOCKER_IMG:$DOCKER_IMG_TAG ghcr.io/$INFERENCE_DOCKER_IMG:latest
     docker push ghcr.io/$INFERENCE_DOCKER_IMG:latest
+
+    if ! docker build -t $INFERENCE_DOCKER_IMG_INIT:$DOCKER_IMG_TAG -f docker/Dockerfile.init . ; then
+        echo "Failed to build docker image"
+        exit 1
+    fi
+
+    docker tag $INFERENCE_DOCKER_IMG_INIT:$DOCKER_IMG_TAG ghcr.io/$INFERENCE_DOCKER_IMG_INIT:latest
+    docker push ghcr.io/$INFERENCE_DOCKER_IMG_INIT:latest
 }
 
 function deploy_inference {

@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: pytorch-inference
+  name: br2-classifier-inference
 spec:
   rules:
   - host: doc-classifier.kube.isc.heia-fr.ch
@@ -11,6 +11,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: pytorch-inference
+            name: br2-classifier-inference
             port:
               number: 80
