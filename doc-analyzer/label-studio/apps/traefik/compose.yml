@@ -1,0 +1,70 @@
+secrets:
+  infomaniak_dns_api_key:
+    file: ../secrets/dns-token
+  passwords:
+    file: ../secrets/passwords
+
+networks:
+  proxy:
+    external: true
+    name: proxy
+
+services:
+  traefik:
+    image: "traefik:v2.11"
+    container_name: "traefik"
+    hostname: "traefik"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - 80:80
+      - 443:443
+    command:
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.web.http.redirections.entryPoint.to=websecure
+      - --log.level=INFO
+      - --api.dashboard=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --certificatesresolvers.resolver.acme.dnschallenge=true
+      - --certificatesresolvers.resolver.acme.dnschallenge.provider=infomaniak
+      - --certificatesresolvers.resolver.acme.email=jean-francois.pasche@heig-vd.ch
+      - --certificatesresolvers.resolver.acme.storage=/acme/acme.json
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - acme:/acme
+
+    labels:
+      traefik.enable: true
+      traefik.http.routers.dashboard.entrypoints: websecure
+      traefik.http.routers.dashboard.rule: Host(`mse-pi.pasche-net.ch`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))
+      traefik.http.routers.dashboard.middlewares: dashboard_auth
+      traefik.http.routers.dashboard.tls: true
+      traefik.http.routers.dashboard.service: api@internal
+      traefik.http.routers.dashboard.tls.certresolver: resolver
+      traefik.http.middlewares.dashboard_auth.basicauth.usersfile: /run/secrets/passwords
+      traefik.http.middlewares.strip-prefix.chain.middlewares: strip-prefix-1,strip-prefix-2
+      traefik.http.middlewares.strip-prefix-1.redirectregex.regex: ^https://mse-pi.pasche-net.ch(/[a-z0-9_\-]+)$$
+      traefik.http.middlewares.strip-prefix-1.redirectregex.replacement: https://mse-pi.pasche-net.ch$${1}/
+      traefik.http.middlewares.strip-prefix-1.redirectregex.permanent: true
+      traefik.http.middlewares.strip-prefix-2.stripprefixregex.regex: /[a-z0-9_\-]+
+    secrets:
+      - infomaniak_dns_api_key
+      - passwords
+    environment:
+      TZ: Europe/Zurich
+      INFOMANIAK_ACCESS_TOKEN_FILE: /run/secrets/infomaniak_dns_api_key
+      INFOMANIAK_ENDPOINT: https://api.infomaniak.com
+      INFOMANIAK_HTTP_TIMEOUT: 30
+    networks:
+      - proxy
+
+volumes:
+  acme:
+    driver: local

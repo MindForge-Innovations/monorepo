@@ -1,0 +1,95 @@
+- name: Update server and install tools
+  hosts: remote
+  become: true
+  tasks:
+    - name: Ensure the OS is up to date
+      ansible.builtin.apt:
+        name: "*"
+        state: latest
+    - name: Install apache2 utils
+      ansible.builtin.apt:
+        name: apache2-utils
+        state: present
+
+- name: Install Docker
+  hosts: remote
+  become: true
+  tasks:
+    - name: Add Docker GPG apt Key
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    - name: Add Docker Repository
+      ansible.builtin.apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu jammy stable
+        state: present
+    - name: Install Docker
+      ansible.builtin.apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+
+- name: Modify ubuntu user
+  hosts: remote
+  become: true
+  tasks:
+    - name: Add ubuntu to docker group
+      ansible.builtin.user:
+        name: ubuntu
+        groups: "docker"
+        append: yes
+
+- name: Directories setup
+  hosts: remote
+  become: true
+  tasks:
+    - name: Create a directory for the project
+      ansible.builtin.file:
+        path: /apps
+        state: directory
+        owner: ubuntu
+
+- name: Docker setup
+  hosts: remote
+  become: true
+  tasks:
+    - name: Create internal network
+      community.general.docker_network:
+        name: internal
+        state: present
+    - name: Create external network
+      community.general.docker_network:
+        name: proxy
+        state: present
+
+- name: Copy apps files
+  hosts: remote
+  tags: lstudio
+  tasks:
+    - name: Copy apps folder
+      ansible.builtin.copy:
+        src: apps/
+        dest: /apps
+
+- name: Start reverse proxy
+  hosts: remote
+  tasks:
+    - name: Start Traefik
+      community.docker.docker_compose_v2:
+        project_src: /apps/traefik
+        project_name: traefik
+        state: present
+        pull: missing
+        remove_orphans: true
+
+- name: Start Label Studio
+  hosts: remote
+  tags: lstudio
+  tasks:
+    - name: Start Label Studio
+      community.docker.docker_compose_v2:
+        project_src: /apps/label-studio
+        project_name: label-studio
+        state: present
+        pull: missing
+        remove_orphans: true
