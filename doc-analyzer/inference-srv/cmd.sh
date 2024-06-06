@@ -16,4 +16,4 @@ torch-model-archiver --model-name document_classifier \
                      --extra-files src/config/model-config.json
 docker run -p 8080:80 -e MLFLOW_TRACKING_URI=$MLFLOW_TRACKING_URI -e MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -e MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD document-classifier:test
 
-curl -X POST "http://localhost:8080/predict/" -F "file=@data/Grotius_Dg-012.png"
+curl -X POST "http://localhost:8080/predict/?version=1" -F "file=@data/Grotius_Dg-012.png"
