@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pv-inspector
+spec:
+  containers:
+  - name: pv-inspector
+    image: busybox
+    command: ["sleep", "3600"]
+    volumeMounts:
+    - mountPath: /mnt/pv
+      name: pv
+  volumes:
+  - name: pv
+    persistentVolumeClaim:
+      claimName: msebr2-doc-classifier
+  restartPolicy: Never

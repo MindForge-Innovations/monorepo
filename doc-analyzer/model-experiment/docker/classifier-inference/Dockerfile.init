@@ -1,0 +1,5 @@
+FROM python:3.11-slim
+RUN pip install mlflow
+WORKDIR /app
+COPY src/download_models.py .
+CMD ["python", "/app/download_models.py"]

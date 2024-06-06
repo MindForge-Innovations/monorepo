@@ -1,5 +1,73 @@
 
 # Object Detection Project
+
+Ce qui manque:
+- Création de releases sur GitHub
+- CD/CI sur GitHub, automatisation
+- 
+
+## Deployment
+
+### Steps
+1. Create all secrets file needed (see the `secrets` section of this README)
+2. Login into the GitHub docker regitry : `docker login`
+3. `./kube.sh setup`
+4. `./kube.sh download:push`
+5. `./kube.sh train:push`
+6. `./kube.sh download:run`
+7. `./kube.sh train:run`
+8. 
+### Secrets
+
+You must create a `secrets` directory with the following structure :
+
+```
+secrets
+├── .aws
+│   └── config
+├── .lstudio
+│   └── api-token
+├── github
+└── mlflow-credentials.yml
+```
+Files content :
+
+- `.aws/config`:
+```
+[default]
+region=<region>
+aws_access_key_id=YOUR_ACCESS_KEY_ID
+aws_secret_access_key=YOUR_SECRET_ACCESS_KEY
+```
+- `.lstudio/api-token`
+```
+<TOKEN>
+```
+- `github`
+```
+GIT_REG_TOKEN=<secret_token>
+GIT_USER=<username>
+```
+- `mlflow-credentials.yml`  : See `doc-analyzer/mlflow-tracking/README.md` the values for `username` and `password`.
+```yml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mlflow-basic-auth
+type: kubernetes.io/basic-auth
+stringData:
+  username: <username> # required field for kubernetes.io/basic-auth
+  password: <password> # required field for kubernetes.io/basic-auth
+```
+
+## Python local setup
+1. Create a python virtual environment with `pyhton3 -m venv .venv` and activate it.
+2. The requirements.txt file was generated with `pip-tools` (` pip install pip-tools`)
+ - Use the command `pip-compile requirements.in` to regenerate the `requirements.txt` file with the latest version available for the project-required python packages.
+
+
+
+
 ```
 object_detection_project/
 │

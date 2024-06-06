@@ -1,13 +1,11 @@
+# ~~~ Imports ~~~
+from dataclasses import dataclass
+
 from lightning.pytorch import Trainer
-import torch
 from lightning.pytorch.loggers import MLFlowLogger
 import colorlog
 import logging
 import rootutils
-import mlflow
-from mlflow.models import infer_signature
-from mlflow import MlflowClient
-from mlflow.store.artifact.runs_artifact_repo import RunsArtifactRepository
 
 # ~~~ Project imports ~~~
 rootutils.setup_root(__file__, indicator=".project-root", pythonpath=True)
@@ -49,12 +47,23 @@ logger.addHandler(handler)
 # logger = logging.getLogger("mlflow")
 logger.setLevel(logging.DEBUG)
 
+# ~~~ Configuration ~~~
+# @dataclass
+# class Config:
+#     data_dir: str = "/app/data"
+#     batch_size: int = 16
+#     num_workers: int = 4
+#     shuffle: bool = True
+#     experiment_name: str = "doc-classifier-v1.0"
+#     logger_uri: str = "http://user:28rCps1l6U@mlflow-tracking-tracking.br2-doc-analyzer-0.svc.cluster.local"
+#     max_epochs: int = 5
+#     limit_train_batches: int = 100
 
 
 def main(config: TrainConfig, mlflow_uri: MLFlowUri):
+    mlflow_uri.logger_uri = "./mlruns"
+    config.max_epochs = 1
     logger.info(f"Configuration: {config}")
-    logger.info(f"MLFlow URI: {mlflow_uri}")
-    logger.info(f"Experiment name: {config.experiment_name}")
     
     # ~~~ Logger ~~~
     mlf_logger = MLFlowLogger(
@@ -63,11 +72,8 @@ def main(config: TrainConfig, mlflow_uri: MLFlowUri):
         log_model=True,
     )
 
-    run_id = mlf_logger.run_id
     mlf_logger.log_hyperparams(config.__dict__)
-    logger.info(f"Active run : {run_id}")
-    if run_id is None:
-        raise Exception("No active run found")
+
     # ~~~ Data Preparation ~~~
     data_module = ClassificationDataModule(
         config.data_dir, config.batch_size, config.num_workers, config.shuffle
@@ -87,7 +93,6 @@ def main(config: TrainConfig, mlflow_uri: MLFlowUri):
         limit_train_batches=config.limit_train_batches,
         max_epochs=config.max_epochs,
         logger=mlf_logger,
-        enable_progress_bar=False
     )
 
     logger.info("Entraînement du modèle...")
@@ -96,21 +101,10 @@ def main(config: TrainConfig, mlflow_uri: MLFlowUri):
         train_dataloaders=data_module,
     )
     logger.info("Entraînement terminé.")
-    
-    mlflow.set_experiment(config.experiment_name)
-    experiment_id = mlflow.get_experiment_by_name(config.experiment_name).experiment_id
-    logger.info(f"Experiment ID: {experiment_id}")
 
-    mlflow.pytorch.log_model(model, artifact_path="document-classifier")
-    scripted_pytorch_model = torch.jit.script(model)
-    mlflow.pytorch.log_model(scripted_pytorch_model, "document-classifier-scripted")
+    scripted_model = model.to_torchscript()
+    scripted_model.save("model.pt")
 
-    client: MlflowClient = mlf_logger.experiment
-    desc = "Document classification model"
-    runs_uri = f"runs:/{run_id}/document-classifier-scripted"
-    model_src = RunsArtifactRepository.get_underlying_uri(runs_uri)
-    mv = client.create_model_version("document-classifier", model_src, run_id, description=desc)
-    logger.info(f"Model registered: id={mv.run_id}, version={mv.version}")
 
 if __name__ == "__main__":
 

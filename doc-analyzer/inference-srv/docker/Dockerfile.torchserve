@@ -1,0 +1,19 @@
+# Utiliser une image de base officielle de TorchServe
+FROM pytorch/torchserve:latest-cpu
+
+WORKDIR /home/model-server
+
+# Copier les fichiers nécessaires dans le conteneur
+COPY src/model.pt ./model-store/
+COPY src/doc-classifier.mar ./model-store/
+#COPY src/config/ ./config/
+
+# Définir les variables d'environnement
+#ENV TORCHSERVE_MODELS config=config/model-config.json
+
+# Exposer le port sur lequel TorchServe fonctionnera
+EXPOSE 8080
+EXPOSE 8081
+
+# Commande pour lancer TorchServe
+CMD ["torchserve", "--start", "--model-store", "/home/model-server/model-store"]

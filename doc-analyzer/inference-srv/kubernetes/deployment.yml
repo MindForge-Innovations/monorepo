@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: br2-classifier-inference
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: br2-classifier-inference
+  template:
+    metadata:
+      labels:
+        app: br2-classifier-inference
+    spec:
+      volumes:
+      - name: model-volume
+        persistentVolumeClaim:
+          claimName: br2-classifier-inference-pvc
+      initContainers:
+        - name: init-classifier-model-downloader
+          image: ghcr.io/superjeffcplusplus/classifier-inference-init
+          volumeMounts:
+            - name: model-volume
+              mountPath: /models
+          envFrom:
+            - configMapRef:
+                name: doc-classifier-training-env
+          env:
+            - name: MLFLOW_TRACKING_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow-basic-auth
+                  key: username
+            - name: MLFLOW_TRACKING_PASSWORD
+              valueFrom:
+                secretKeyRef:       
+                  name: mlflow-basic-auth
+                  key: password
+            - name: MLFLOW_TRACKING_URI
+              value: http://mlflow-tracking.br2-mlflow.svc.cluster.local
+      containers:
+        - name: br2-classifier-inference
+          image: ghcr.io/superjeffcplusplus/classifier-inference:latest
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: model-volume
+              mountPath: /models
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: doc-classifier-training-env
+          env:
+            - name: MLFLOW_TRACKING_URI
+              value: http://mlflow-tracking.br2-mlflow.svc.cluster.local
+            - name: MLFLOW_TRACKING_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow-basic-auth
+                  key: username
+            - name: MLFLOW_TRACKING_PASSWORD
+              valueFrom:
+                secretKeyRef:       
+                  name: mlflow-basic-auth
+                  key: password
+      imagePullSecrets:
+        - name: ghcr-secret

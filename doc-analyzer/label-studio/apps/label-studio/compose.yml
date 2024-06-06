@@ -1,0 +1,77 @@
+secrets:
+  pgpassword:
+    file: ../secrets/pgpassword
+  
+networks:
+  proxy:
+    external: true
+    name: proxy
+  internal:
+    external: true
+    name: internal
+
+volumes:
+  label-studio:
+    driver: local
+
+services:
+  label-studio:
+    container_name: label-studio
+    image: "heartexlabs/label-studio:latest"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - label-studio:/label-studio/data
+    labels:
+      traefik.enable: true
+      traefik.docker.network: proxy
+      traefik.http.routers.label-studio.entrypoints: websecure
+      traefik.http.routers.label-studio.rule: Host(`mse-pi.pasche-net.ch`) && PathPrefix(`/label-studio`)
+      traefik.http.routers.label-studio.tls: true
+      traefik.http.routers.label-studio.middlewares: strip-prefix
+      traefik.http.routers.label-studio.tls.certresolver: resolver
+    expose:
+      - 80
+    environment:
+      LABEL_STUDIO_LOCAL_FILES_SERVING_ENABLED: true
+      LABEL_STUDIO_LOCAL_FILES_DOCUMENT_ROOT: /label-studio/files
+      LABEL_STUDIO_PORT: 80
+      LABEL_STUDIO_HOST: https://mse-pi.pasche-net.ch/label-studio
+      SSRF_PROTECTION_ENABLED: true
+      LABEL_STUDIO_DISABLE_SIGNUP_WITHOUT_LINK: true
+      DJANGO_DB: default
+      POSTGRE_NAME: labelstudio
+      POSTGRE_USER: labelstudio
+      POSTGRE_PORT: 5432
+      POSTGRE_HOST: postgres
+      # POSTGRE_PASSWORD defined in .env
+    env_file:
+      - ../secrets/pgpassword.env
+      - ../secrets/s3.env
+    depends_on:
+      - postgres
+    networks:
+      - proxy
+      - internal
+    secrets:
+      - pgpassword
+
+  postgres:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: labelstudio
+      POSTGRES_USER: labelstudio
+      POSTGRES_PASSWORD_FILE: /run/secrets/pgpassword
+      PGDATA: /data/db-data/pgdata
+    volumes:
+      - /mnt/db-data:/data/db-data
+    expose:
+      - 5432
+    secrets:
+      - pgpassword
+    networks:
+      - internal
